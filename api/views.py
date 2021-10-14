@@ -22,30 +22,3 @@ def post_login(request):
 
 def submit_scores(request):
     return HttpResponse('The path to submit user\'s game scores.')
-
-    
-
-
-
-# import pyrebase
-# config = {
-#   "apiKey": "AIzaSyAkOMvXq-Uxhds1GwoWmWkKpkXRNqMcVPM",
-#   "authDomain": "cse310-triviagame.firebaseapp.com",
-#   "databaseURL": "https://cse310-triviagame-default-rtdb.firebaseio.com",
-#   "projectId": "cse310-triviagame",
-#   "storageBucket": "cse310-triviagame.appspot.com",
-#   "messagingSenderId": "732277971447",
-#   "appId": "1:732277971447:web:0903fa9fdfe74003e336f2",
-#   "measurementId": "G-NW6WL46ZPR"
-# }
-
-# firebase=pyrebase.initialize_app(config)
-# authe=firebase.auth()
-# database=firebase.database()
-
-# def server_home(request):
-#     channel_name = database.child('Data').child('Name').get().val()
-#     subscribers = database.child('Data').child('Subscribers').get().val()
-#     channel_type = database.child('Data').child('Type').get().val()
-#     print(channel_name, channel_type, subscribers)
-#     return HttpResponse('Channen Name', channel_name)

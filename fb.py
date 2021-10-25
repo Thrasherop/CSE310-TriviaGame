@@ -48,7 +48,9 @@ def post_user(first_name, last_name, email, password):
     # ISSUE: I was not able to figure out a way to convert a django object to a python dictionary without it generating an 'id' key with a 'null' value.
     # WHAT NEEDS TO HAPPEN: We need to figure out how to convert a django object/model to a python dictionary without it adding it's own key:value
     # TEMPORARY SOLUTION: We use model_to_dict(), but again, we don't want it to generate an id key:value because firebase automatically does that
-    users_ref.add(model_to_dict(user))
+    d = model_to_dict(user)
+    del d['id']
+    users_ref.add(model_to_dict(d))
 
 
 # game #collection

@@ -9,6 +9,7 @@ from . import views
 urlpatterns = [ 
     path('hello_world', views.hello_world_endpoint),
     path('', views.server_home),
+    path('signup', views.post_signup),
     path('login', views.post_login),
     path('submit_scores', views.submit_scores)
 ]

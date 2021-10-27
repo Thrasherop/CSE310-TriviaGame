@@ -39,6 +39,7 @@ def initialize_firestore():
 
 # user collection
 def get_users():
+    ## this returns an array of documents
     results = users_ref.get()
     return results
 

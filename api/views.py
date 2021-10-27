@@ -25,7 +25,7 @@ def post_signup(request):
     
     ## make sure passwords match
     if password != confirmPassword:
-        return
+        return JsonResponse({'message': 'Passwords do not match.', "status": 400})
 
     ## write this user object to the firebase db
     ## get a response from the fb.py post_user function

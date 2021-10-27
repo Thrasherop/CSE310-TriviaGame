@@ -11,10 +11,6 @@ def hello_world_endpoint(request):
     return HttpResponse('Hello world. This is a simple endpoint.')
 
 def server_home(request):
-    ## users is an array/list of documents
-    usersList = get_users()
-    for user in usersList:
-        print(user.to_dict())
     return HttpResponse('Home page')
 
 def post_signup(request):

@@ -43,14 +43,30 @@ def get_users():
     return results
 
 def post_user(first_name, last_name, email, password):
+    ## generate user object from User model with data being passed in
     user = User(first_name=first_name, last_name=last_name, email=email, password=password)
-    # ISSUES: Django models do not return as dictionaries. You need to give firebase a proper dictionary or object, not a django object.
-    # ISSUE: I was not able to figure out a way to convert a django object to a python dictionary without it generating an 'id' key with a 'null' value.
-    # WHAT NEEDS TO HAPPEN: We need to figure out how to convert a django object/model to a python dictionary without it adding it's own key:value
-    # TEMPORARY SOLUTION: We use model_to_dict(), but again, we don't want it to generate an id key:value because firebase automatically does that
+    ## convert django model to dictionary
     d = model_to_dict(user)
+    ## delete the null id key and value
     del d['id']
-    users_ref.add(model_to_dict(d))
+
+    ## set return object
+    returnDict = { 'message': "", 'status': None }
+
+    ## write to db
+    try:
+        ## send user dictionary to write to db
+        users_ref.add(d)
+        ## return message and status
+        returnDict["message"] = "Success"
+        returnDict["status"] = 200
+    except Exception as e:
+        ## if fails, set returnDict to failure and return
+        returnDict["message"] = str(e)
+        returnDict["status"] = 400
+    finally:
+        ## finally return dict
+        return returnDict
 
 
 # game #collection

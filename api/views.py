@@ -11,6 +11,10 @@ def hello_world_endpoint(request):
     return HttpResponse('Hello world. This is a simple endpoint.')
 
 def server_home(request):
+    ## users is an array/list of documents
+    usersList = get_users()
+    for user in usersList:
+        print(user.to_dict())
     return HttpResponse('Home page')
 
 def post_signup(request):
@@ -22,6 +26,14 @@ def post_signup(request):
     confirmPassword = request.POST['confirm_password']
 
     ## make sure the email doesn't already exists
+    ## get all users
+    usersList = get_users()
+    ## see if the user email matches ANY other email in the db
+    for user in usersList:
+        # convert user to dict
+        u = user.to_dict()
+        if email == u['email']:
+            return JsonResponse({"message": 'Email already exists.', "status": 400})
     
     ## make sure passwords match
     if password != confirmPassword:

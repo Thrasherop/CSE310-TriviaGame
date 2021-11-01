@@ -56,9 +56,7 @@ def post_user(first_name, last_name, email, password):
     user = User(first_name=first_name, last_name=last_name,
                 email=email, password=password)
     # convert django model to dictionary
-    d = model_to_dict(user)
-    # delete the null id key and value
-    del d['id']
+    d = user.to_dict(0)
 
     # set return object
     returnDict = {'message': "", 'status': None}
@@ -105,45 +103,53 @@ def post_game(user_id, score, game):
     questionIdList = list()
 
     # for each dictionary in the game array
-    for dic in game:
-
-        #Create Question Object
-        
-        question = Question(question=dic['question'], scored=dic['scored'])
-
-
+    for game_feature in game:
+        # make sure the answerIdList is empty each time it loops through
+        answerIdList = []
 
         # create answer object for each answer, 4 answers per question
-        for i, answerList in enumerate(dic['answers']):
+        for i, answerList in enumerate(game_feature['answers']):
             ansObj = Answer(answer=answerList['answer'], is_correct=answerList['is_correct'])
             # write the answer to the database, return back the id of the answer
-            answerId = _write_answer(model_to_dict(ansObj))
+            answerId = _write_answer(ansObj.to_dict())
              # append the id to list
             answerIdList.append(answerId)
 
-            print(answerId)
-            # add answerId to question object
-            question.answers.append(answerId)
-            print("after")
-        
         # after creating 4 answer objects, create a question object for each question
-        
+        # Create Question Object
+        question = Question(question=game_feature['question'], scored=game_feature['scored'], answers=answerIdList)
+        # for ans in question.answers:
+        #     print(ans)
         # write the question to the database, return back the id of the question
-        questionObjId = _write_question(model_to_dict(question))
+        questionObjId = _write_question(question.to_dict())
         # append the id to list
         questionIdList.append(questionObjId)
 
     # create game obj
-    game = Game(score=score) 
-    game.questions.append(questionObjId)
+    game = Game(score=score, questions=questionIdList)
     # write the game to the database, return back the id of the game
-    gameId = _write_game(model_to_dict(game))
+    gameId = _write_game(game.to_dict())
 
     # now we need to append the gameId to the games array stored in the user object
-    # get the user by it's user_id
-    user = get_user(user_id)
-    print(user)
-
+    # create empty dictionary for return purposes
+    returnDict = {}
+    try:
+        # get the user by it's user_id
+        fetchedUser = get_user(user_id)
+        # append the new gameId to the games field in the user
+        fetchedUser['games'].append(gameId)
+        # update that user by it's id
+        users_ref.document(user_id).update(fetchedUser)
+        # update return dictionary
+        returnDict["message"] = "Success"
+        returnDict["status"] = 200
+    except:
+        # if fails, set returnDict to failure and return
+        returnDict["message"] = str(e)
+        returnDict["status"] = 400
+    finally:
+        # return the dictionary to let the user know if failed or succeeded
+        return returnDict
 
 
 def delete_game(game_id):

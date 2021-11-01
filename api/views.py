@@ -10,7 +10,7 @@ from fb import get_users, initialize_firestore, post_user, get_user, get_game, p
 def hello_world_endpoint(request):
     return HttpResponse('Hello world. This is a simple endpoint.')
 
-
+## SAVE THIS FOR REFERENCE... WHEN SAVING A GAME TO THE DB, THE GAME NEEDS TO LOOK LIKE THIS
 model_game = [
         {    
             'question': 'Where did LeBron go to college?', 
@@ -35,10 +35,21 @@ model_game = [
     ]
 
 def server_home(request):
-    user = post_game('fao8mlFAzPih6aCRzCjl', 10, model_game)
+    user = post_game('FYhRlSA0lRRmpSfbwqj4', 10, model_game)
+    print(user)
     # print(user)
     return HttpResponse('Home page')
 
+def post_game_played(request):  
+    # create variables from the POST req body
+    user_id = request.POST['user_id']
+    game_score = request.POST['score']
+    game_played = request.POST['game']
+
+    # write this game object to the firebase db
+    # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
+    dbResponse = post_game(user_id, game_score, game_played)
+    return JsonResponse(dbResponse)
 
 def post_signup(request):
     # creating variables from the POST req body

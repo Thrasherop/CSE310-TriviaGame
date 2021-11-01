@@ -4,8 +4,8 @@ from api.custom_models.answer import Answer
 
 class Question(models.Model):
     question = models.CharField(max_length=300)
-    # answers = models.ManyToManyField(Answer)
-    answers = models.ForeignKey(Answer, on_delete=models.CASCADE, default=[])
+    
+    answers = []
     scored = models.BooleanField(default=False)
 
     # question = models.CharField(max_length=300)

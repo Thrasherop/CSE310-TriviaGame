@@ -106,6 +106,13 @@ def post_game(user_id, score, game):
 
     # for each dictionary in the game array
     for dic in game:
+
+        #Create Question Object
+        
+        question = Question(question=dic['question'], scored=dic['scored'])
+
+
+
         # create answer object for each answer, 4 answers per question
         for i, answerList in enumerate(dic['answers']):
             ansObj = Answer(answer=answerList['answer'], is_correct=answerList['is_correct'])
@@ -113,16 +120,22 @@ def post_game(user_id, score, game):
             answerId = _write_answer(model_to_dict(ansObj))
              # append the id to list
             answerIdList.append(answerId)
+
+            print(answerId)
+            # add answerId to question object
+            question.answers.append(answerId)
+            print("after")
         
         # after creating 4 answer objects, create a question object for each question
-        question = Question(question=dic['question'], answers=answerIdList, scored=dic['scored'])
+        
         # write the question to the database, return back the id of the question
         questionObjId = _write_question(model_to_dict(question))
         # append the id to list
         questionIdList.append(questionObjId)
 
     # create game obj
-    game = Game(score=score, questions=questionIdList)
+    game = Game(score=score) 
+    game.questions.append(questionObjId)
     # write the game to the database, return back the id of the game
     gameId = _write_game(model_to_dict(game))
 
@@ -139,14 +152,14 @@ def delete_game(game_id):
 ## PRVIATE METHODS
 ## ONLY USE THESE METHODS WITHIN THIS FILE
 
-# write an answer to the db and return back the id of the answer
+# write an answer to the firebase db and return back the id of the answer
 def _write_answer(ansObj):
     docRef = answers_ref.add(ansObj)
     # return id of answer document
     return docRef[1].id
     # return answers_ref.document(docRef[1].id)
 
-# write a question to the db and return back the id of the question
+# write a question to the firebase db and return back the id of the question
 def _write_question(questionObj):
     docRef = questions_ref.add(questionObj)
     # return id of question document

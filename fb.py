@@ -52,7 +52,16 @@ def get_user(user_id):
 
 # signin a user to the db
 def post_login_user(email, password):
-    pass
+    # again, authenticate to make sure there is an email and password
+    # search through every user to make sure email exists
+
+    # set return object
+    returnDict = {'message': "", 'status': None}
+
+    #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
+    #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
+
+    return returnDict
 
 # write a user to the database, signup a user
 def post_user(first_name, last_name, email, password):

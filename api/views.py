@@ -82,10 +82,31 @@ def post_signup(request):
 
 
 def post_login(request):
-    post_user('Last', 'Test', 'sup@gmail.com', 'testpw')
-    userDocRef = get_users()
-    print(userDocRef[0].to_dict())
-    return HttpResponse('The path the admin/user will use to login.')
+    # create variables for user and password from the POST request body
+    email = request.POST['email']
+    password = request.POST['password']
+
+    # see if the request.POST['email'] & ['password'] aren't empty
+    if not email:
+        return JsonResponse({"message": 'email field must have data', "status": 400})
+    if not password:
+        return JsonResponse({"message": 'password field must have data', "status": 400})
+
+    # see if the email exists in the db by using the get_users() method and filtering through
+    '''userDocRef = get_users()
+    for user in userDocRef:
+        u = user.to_dict()
+        if email == u['email']:
+            return JsonResponse({"message": 'Your email exists :)', "status": 200})'''
+
+    # send email and password to post_login_user() from fb.py, make sure to import that function. 
+    # You might get an error but it's because your code isn't merged with the latest code
+    response = post_login_user(email, password)
+    
+    # you will then set that to a response variable, which will return a response object, 
+    # that will have a response['status'] key, if 200 == success, 400 == error
+    # send that response JsonResponse(response)
+    return JsonResponse(response)
 
 
 def submit_scores(request):

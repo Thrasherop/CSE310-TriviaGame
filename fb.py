@@ -50,6 +50,10 @@ def get_user(user_id):
     # convert the object to a python dict and return it
     return userToReturn.to_dict()
 
+# signin a user to the db
+def post_login_user(email, password):
+    pass
+
 # write a user to the database, signup a user
 def post_user(first_name, last_name, email, password):
     # generate user object from User model with data being passed in

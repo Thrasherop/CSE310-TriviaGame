@@ -52,33 +52,37 @@ def get_user(user_id):
 
 # signin a user to the db
 def post_login_user(email, password):
-    # again, authenticate to make sure there is an email and password
-    if not email:
-        return JsonResponse({"message": 'email field cannot be blank', "status": 400})
-    if not password:
-        return JsonResponse({"message": 'password field cannot be blank', "status": 400})
-    # search through every user to make sure email exists
-    users = get_user()
-    for x in users:
-        if email == users[x]['email']:
-            return JsonResponse({"message": 'email exists', "status": 200})
-
-
     # set return object
     returnDict = {'message': "", 'status': None}
-
+    # again, authenticate to make sure there is an email and password
+    if not email:
+        returnDict["message"] = "email cannot be blank"
+        returnDict["status"] = 400
+        return returnDict
+    if not password:
+        returnDict["message"] = "password cannot be blank"
+        returnDict["status"] = 400
+        return returnDict
+    # search through every user to make sure email exists
+    users = get_users()
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
     for i in users:
         if email == users[i]['email']:
             if password == users[i]['password']:
-                returnDict["message"] = "email matches corresponding password :)"
+                returnDict["message"] = "successful login"
                 returnDict["status"] = 200
+                return returnDict
     #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
             else:
                 returnDict["message"] = "password doesn't match given email"
                 returnDict["status"] = 400
+                return returnDict
+        else:
+            returnDict["message"] = "email isn't found"
+            returnDict["status"] = 400
+            return returnDict
 
-    return returnDict
+            
 
 # write a user to the database, signup a user
 def post_user(first_name, last_name, email, password):
@@ -205,6 +209,3 @@ def _write_question(questionObj):
 def _write_game(gameObj):
     docRef = games_ref.add(gameObj)
     return docRef[1].id
-
-    XUvz
-    VUyS

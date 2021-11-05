@@ -165,8 +165,67 @@ def post_game(user_id, score, game):
         return returnDict
 
 
-def delete_game(game_id):
-    pass
+def delete_game(user_id, game_id):
+    # get the user so we can delete the game from the games array within the user
+    fetchedUser = get_user(user_id)
+
+    # set return object
+    returnDict = {'message': "", 'status': None}
+
+    # get the game to delete
+    game_to_delete = games_ref.document(game_id).get().to_dict()
+
+    # if the game_id being passed in isn't a valid game id, meaning game_to_delete returns back null
+    if game_to_delete == None:
+        returnDict["message"] = "Must be a valid game id."
+        returnDict["status"] = 400
+        return returnDict
+
+    # create new array variable to pass in
+    newGamesList = list()
+
+    # loop through the array of games and find the game that matches the game_id
+    for gameId in fetchedUser['games']:
+        # if found, pop out that game_id of the list
+        if gameId == game_id:
+            removedGame = fetchedUser['games'].remove(game_id)
+        # if not found, append that gameId to new array to update db later
+        else:
+            newGamesList.append(str(gameId))
+
+    # update user in db
+    users_ref.document(user_id).update({u'games': newGamesList})
+
+    # delete the questions that were part of that game
+    for questionId in game_to_delete['questions']:
+        if questionId != None:
+            # store question ref
+            question_to_delete = questions_ref.document(questionId).get().to_dict()
+
+            # delete each answer for that question
+            for answerId in question_to_delete['answers']:
+                if answerId != None:
+                    answers_ref.document(answerId).delete()
+
+            # find that question in the db and delete it
+            questions_ref.document(questionId).delete()
+
+    # write to db
+    try:
+        # delete game
+        games_ref.document(game_id).delete()
+        # return message and status
+        returnDict["message"] = "Success"
+        returnDict["status"] = 200
+    except Exception as e:
+        # if fails, set returnDict to failure and return
+        returnDict["message"] = str(e)
+        returnDict["status"] = 400
+    finally:
+        # finally return dict
+        return returnDict
+
+
 
 ## PRVIATE METHODS
 ## ONLY USE THESE METHODS WITHIN THIS FILE

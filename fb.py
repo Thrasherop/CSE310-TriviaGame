@@ -156,7 +156,7 @@ def post_game(user_id, score, game):
         # update return dictionary
         returnDict["message"] = "Success"
         returnDict["status"] = 200
-    except:
+    except Exception as e:
         # if fails, set returnDict to failure and return
         returnDict["message"] = str(e)
         returnDict["status"] = 400

@@ -3,7 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from api.custom_models.user import User
 
 from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game
+from api.custom_models.game import Game
 
+import requests
 
 # Create your views here / controllers to handle the logic of the req and handle the interact with the db
 
@@ -107,6 +109,128 @@ def post_login(request):
     # that will have a response['status'] key, if 200 == success, 400 == error
     # send that response JsonResponse(response)
     return JsonResponse(response)
+
+def post_generate_game(request):
+
+
+    """
+
+        Generates a game from the trivia API
+        IT returns this game data as a JSON object
+
+
+        There are optional post parameters:
+            difficulty: easy, medium, hard (easy default)
+            amount: how many questions to return (10 default)
+            category: a specific category to return questions from (any default)
+            type: multiple, true or false (multiple default)
+            
+
+        The request to trivia looks like this:
+        # https://opentdb.com/api.php?amount=10&category=9&difficulty=medium&type=multiple&encode=url3986
+
+        return:
+            A JsonResponse object with the following keys:
+                status: 200 for success, 400 for error
+                questions: an array of questions
+                    [
+                        {question: question string,
+                        answers: [
+                            {answer: answer string, is_correct: boolean}
+                        ]}.
+
+                    ]
+        
+
+    """
+
+    try:
+
+        # Initilizes the api query string
+        api_query = 'https://opentdb.com/api.php?'
+
+
+        # Sets up the api_query string with the the different params
+        # It does this by appending the value immediately after checking
+        # the requests key
+
+        if not 'amount' in request.POST:
+            #amount = 10
+            api_query += 'amount=10&'
+        else:
+            #amount = request.POST['amount']
+            api_query += 'amount=' + request.POST['amount'] + '&'
+
+        if not 'category' in request.POST:
+            pass 
+        else:
+            api_query += 'category=' + request.POST['category'] + '&'
+
+        if not 'difficulty' in request.POST:
+            api_query += 'difficulty=easy&'
+        else:
+            api_query += 'difficulty=' + request.POST['difficulty'] + '&'
+
+        if not 'type' in request.POST:
+            api_query += 'type=multiple&'
+        else:
+            api_query += 'type=' + request.POST['type'] + '&'
+    
+        data = requests.get(api_query).json()
+
+
+        # checks if the data response code is not 0 (success). If its not 0, then it returns an error
+        if data['response_code'] != 0:
+            return JsonResponse({'status': 400, 'message': 'There was an error with the request'})
+
+
+        # parses the data into a JSON object that we can return
+        final_json = dict()
+        final_json['status'] = 200
+        final_json['questions'] = []
+
+        # Gets results from the data
+        raw_results = data['results']
+
+        for result in raw_results:
+
+            question = result['question']
+            correct_answer = result['correct_answer']
+            incorrect_answers = result['incorrect_answers']
+
+            # creates the maps of all the questions, and appends to all answers array
+
+            all_answers = []
+
+            for answer in incorrect_answers:
+                answers = {
+                    'answer': answer,
+                    'is_correct': False
+                }
+                all_answers.append(answers)
+
+
+            # Does the one for correct answer
+            correct_answer_map = {
+                'answer': correct_answer,
+                'is_correct': True
+            }
+
+            all_answers.append(correct_answer_map)
+
+        final_dict = {'question:' : question, 'answers': all_answers}
+        final_dict = {'score': False}
+
+        game = Game(0, final_dict)
+
+        final_json['questions'].append(final_dict)
+
+
+        return JsonResponse(game.to_dict)#final_json)
+
+
+    except Exception as e:
+        return JsonResponse({'status': 500, 'message': 'There was an internal error'})
 
 
 def submit_scores(request):

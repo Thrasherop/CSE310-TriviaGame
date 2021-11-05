@@ -54,9 +54,9 @@ def get_user(user_id):
 def post_login_user(email, password):
     # again, authenticate to make sure there is an email and password
     if not email:
-        return JsonResponse({"message": 'email field must have data', "status": 400})
+        return JsonResponse({"message": 'email field cannot be blank', "status": 400})
     if not password:
-        return JsonResponse({"message": 'password field must have data', "status": 400})
+        return JsonResponse({"message": 'password field cannot be blank', "status": 400})
     # search through every user to make sure email exists
     users = get_user()
     for x in users:
@@ -71,12 +71,12 @@ def post_login_user(email, password):
     for i in users:
         if email == users[i]['email']:
             if password == users[i]['password']:
-                returnDict["message"] = "Success"
+                returnDict["message"] = "email matches corresponding password :)"
                 returnDict["status"] = 200
     #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
-        else:
-            returnDict["message"] = "Failed"
-            returnDict["status"] = 400
+            else:
+                returnDict["message"] = "password doesn't match given email"
+                returnDict["status"] = 400
 
     return returnDict
 

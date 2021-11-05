@@ -35,7 +35,6 @@ model_game = [
     ]
 
 def server_home(request):
-    delete_game('FYhRlSA0lRRmpSfbwqj4', 'dkjasf')
     return HttpResponse('Home page')
 
 def post_game_played(request):  

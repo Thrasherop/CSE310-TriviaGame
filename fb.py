@@ -53,13 +53,30 @@ def get_user(user_id):
 # signin a user to the db
 def post_login_user(email, password):
     # again, authenticate to make sure there is an email and password
+    if not email:
+        return JsonResponse({"message": 'email field must have data', "status": 400})
+    if not password:
+        return JsonResponse({"message": 'password field must have data', "status": 400})
     # search through every user to make sure email exists
+    users = get_user()
+    for x in users:
+        if email == users[x]['email']:
+            return JsonResponse({"message": 'email exists', "status": 200})
+
 
     # set return object
     returnDict = {'message': "", 'status': None}
 
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
+    for i in users:
+        if email == users[i]['email']:
+            if password == users[i]['password']:
+                returnDict["message"] = "Success"
+                returnDict["status"] = 200
     #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
+        else:
+            returnDict["message"] = "Failed"
+            returnDict["status"] = 400
 
     return returnDict
 
@@ -188,3 +205,6 @@ def _write_question(questionObj):
 def _write_game(gameObj):
     docRef = games_ref.add(gameObj)
     return docRef[1].id
+
+    XUvz
+    VUyS

@@ -112,6 +112,44 @@ def post_user(first_name, last_name, email, password):
 
 # delete user by user_id
 def delete_user(user_id):
+    # make sure user_id is there, not None type
+    # get the user by the get_user(user_id) function above
+
+    # THIS IS WHERE IT CAN GET TRICKY
+
+    # first see if the games list within that user object has games
+    #### len(user['games']) > 0
+    # if not, jsut delete the user cause that means the user hasn't played any games
+    # if there are games, loop through each games
+    #### for gameId in user['games']
+    # then loop through each question in that game
+    #### for questionId in gameId['questions']
+    # then loop through each answer for that question
+    #### for answerId in questionId['answers']
+    # then delete those answers
+    #### answers_ref.document(answerId).delete()
+    # then delete the question
+    #### questions_ref.document(questionId).delete()
+    #### then delete the game
+
+    # user = get_user(user_id)
+
+    # for gameId in user['games']:
+    #     if gameId != None:
+    #         game_to_delete_dict = games_ref.document(gameId).get().to_dict()
+
+    #         for questionId in gameId['questions']:
+    #             if questionId != None:
+    #                 question_to_delete_dict = questions_ref.document(questionId).delete()
+
+    #                 for answerId in questionId['answers']:
+    #                     answers_ref.document(answerId).delete()
+                    
+    #                 questions_ref.document(questionId).delete()
+
+    #         && SO ON!!
+
+
     pass
 
 # get all games, with user_id passed in

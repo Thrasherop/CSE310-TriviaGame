@@ -2,7 +2,7 @@ from django.db import models
 from api.custom_models.question import Question
 # from api.custom_models.user import User
 
-class Game(models.Model):
+class Game:
 
     def __init__(self, score=0, questions=[]):
         self.score = score
@@ -20,6 +20,7 @@ class Game(models.Model):
             'score': self.score,
             'questions': self.questions
         }
+
 
         return dest
 

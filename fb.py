@@ -52,16 +52,37 @@ def get_user(user_id):
 
 # signin a user to the db
 def post_login_user(email, password):
-    # again, authenticate to make sure there is an email and password
-    # search through every user to make sure email exists
-
     # set return object
     returnDict = {'message': "", 'status': None}
-
+    # again, authenticate to make sure there is an email and password
+    if not email:
+        returnDict["message"] = "email cannot be blank"
+        returnDict["status"] = 400
+        return returnDict
+    if not password:
+        returnDict["message"] = "password cannot be blank"
+        returnDict["status"] = 400
+        return returnDict
+    # search through every user to make sure email exists
+    users = get_users()
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
+    for i in users:
+        if email == users[i]['email']:
+            if password == users[i]['password']:
+                returnDict["message"] = "successful login"
+                returnDict["status"] = 200
+                return returnDict
     #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
+            else:
+                returnDict["message"] = "password doesn't match given email"
+                returnDict["status"] = 400
+                return returnDict
+        else:
+            returnDict["message"] = "email isn't found"
+            returnDict["status"] = 400
+            return returnDict
 
-    return returnDict
+            
 
 # write a user to the database, signup a user
 def post_user(first_name, last_name, email, password):
@@ -91,6 +112,44 @@ def post_user(first_name, last_name, email, password):
 
 # delete user by user_id
 def delete_user(user_id):
+    # make sure user_id is there, not None type
+    # get the user by the get_user(user_id) function above
+
+    # THIS IS WHERE IT CAN GET TRICKY
+
+    # first see if the games list within that user object has games
+    #### len(user['games']) > 0
+    # if not, jsut delete the user cause that means the user hasn't played any games
+    # if there are games, loop through each games
+    #### for gameId in user['games']
+    # then loop through each question in that game
+    #### for questionId in gameId['questions']
+    # then loop through each answer for that question
+    #### for answerId in questionId['answers']
+    # then delete those answers
+    #### answers_ref.document(answerId).delete()
+    # then delete the question
+    #### questions_ref.document(questionId).delete()
+    #### then delete the game
+
+    # user = get_user(user_id)
+
+    # for gameId in user['games']:
+    #     if gameId != None:
+    #         game_to_delete_dict = games_ref.document(gameId).get().to_dict()
+
+    #         for questionId in gameId['questions']:
+    #             if questionId != None:
+    #                 question_to_delete_dict = questions_ref.document(questionId).delete()
+
+    #                 for answerId in questionId['answers']:
+    #                     answers_ref.document(answerId).delete()
+                    
+    #                 questions_ref.document(questionId).delete()
+
+    #         && SO ON!!
+
+
     pass
 
 # get all games, with user_id passed in
@@ -165,8 +224,67 @@ def post_game(user_id, score, game):
         return returnDict
 
 
-def delete_game(game_id):
-    pass
+def delete_game(user_id, game_id):
+    # get the user so we can delete the game from the games array within the user
+    fetchedUser = get_user(user_id)
+
+    # set return object
+    returnDict = {'message': "", 'status': None}
+
+    # get the game to delete
+    game_to_delete = games_ref.document(game_id).get().to_dict()
+
+    # if the game_id being passed in isn't a valid game id, meaning game_to_delete returns back null
+    if game_to_delete == None:
+        returnDict["message"] = "Must be a valid game id."
+        returnDict["status"] = 400
+        return returnDict
+
+    # create new array variable to pass in
+    newGamesList = list()
+
+    # loop through the array of games and find the game that matches the game_id
+    for gameId in fetchedUser['games']:
+        # if found, pop out that game_id of the list
+        if gameId == game_id:
+            removedGame = fetchedUser['games'].remove(game_id)
+        # if not found, append that gameId to new array to update db later
+        else:
+            newGamesList.append(str(gameId))
+
+    # update user in db
+    users_ref.document(user_id).update({u'games': newGamesList})
+
+    # delete the questions that were part of that game
+    for questionId in game_to_delete['questions']:
+        if questionId != None:
+            # store question ref
+            question_to_delete = questions_ref.document(questionId).get().to_dict()
+
+            # delete each answer for that question
+            for answerId in question_to_delete['answers']:
+                if answerId != None:
+                    answers_ref.document(answerId).delete()
+
+            # find that question in the db and delete it
+            questions_ref.document(questionId).delete()
+
+    # write to db
+    try:
+        # delete game
+        games_ref.document(game_id).delete()
+        # return message and status
+        returnDict["message"] = "Success"
+        returnDict["status"] = 200
+    except Exception as e:
+        # if fails, set returnDict to failure and return
+        returnDict["message"] = str(e)
+        returnDict["status"] = 400
+    finally:
+        # finally return dict
+        return returnDict
+
+
 
 ## PRVIATE METHODS
 ## ONLY USE THESE METHODS WITHIN THIS FILE

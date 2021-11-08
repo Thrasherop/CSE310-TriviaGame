@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from api.custom_models.user import User
 
-from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game
+from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game
 from api.custom_models.game import Game
 from api.custom_models.question import Question
 from api.custom_models.answer import Answer
+
 
 
 import requests
@@ -43,9 +44,6 @@ model_game = [
     ]
 
 def server_home(request):
-    user = post_game('FYhRlSA0lRRmpSfbwqj4', 10, model_game)
-    print(user)
-    # print(user)
     return HttpResponse('Home page')
 
 def post_game_played(request):  

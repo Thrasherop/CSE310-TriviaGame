@@ -188,46 +188,6 @@ def post_generate_game(request):
             return JsonResponse({'status': 400, 'message': 'There was an error with the request'})
 
 
-        # # parses the data into a JSON object that we can return
-        # final_json = dict()
-        # final_json['status'] = 200
-        # final_json['questions'] = []
-
-        # # Gets results from the data
-        # raw_results = data['results']
-
-        # for result in raw_results:
-
-        
-
-        #     # creates the maps of all the questions, and appends to all answers array
-
-        #     all_answers = []
-
-        #     for answer in incorrect_answers:
-        #         answers = {
-        #             'answer': answer,
-        #             'is_correct': False
-        #         }
-        #         all_answers.append(answers)
-
-
-        #     # Does the one for correct answer
-        #     correct_answer_map = {
-        #         'answer': correct_answer,
-        #         'is_correct': True
-        #     }
-
-        #     all_answers.append(correct_answer_map)
-
-        # final_dict = {'question:' : question, 'answers': all_answers}
-        # final_dict = {'score': False}
-
-        # game = Game(0, final_dict)
-
-        # final_json['questions'].append(final_dict)
-
-
         # # Gets results from the data
         raw_results = data['results']
 
@@ -262,13 +222,6 @@ def post_generate_game(request):
 
         return_map = game.to_dict() 
 
-        #return_map = {"foo": 100}
-        #print(return_map)
-        print(type(return_map))
-
-        #return_map = json.dumps(return_map)
-
-        print(return_map)
 
         return JsonResponse(return_map)
 

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from api.custom_models.user import User
 
-from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game
+from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user
 from api.custom_models.game import Game
 from api.custom_models.question import Question
 from api.custom_models.answer import Answer
@@ -44,6 +44,11 @@ model_game = [
     ]
 
 def server_home(request):
+
+    # check if there is a cookie
+    # if there is a cookie, validate it
+    # if not, redirect to login page
+
     return HttpResponse('Home page')
 
 def post_game_played(request):  

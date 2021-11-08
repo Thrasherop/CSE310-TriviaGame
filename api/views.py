@@ -4,8 +4,14 @@ from api.custom_models.user import User
 
 from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game
 from api.custom_models.game import Game
+from api.custom_models.question import Question
+from api.custom_models.answer import Answer
+
 
 import requests
+import traceback
+import json
+
 
 # Create your views here / controllers to handle the logic of the req and handle the interact with the db
 
@@ -184,21 +190,57 @@ def post_generate_game(request):
             return JsonResponse({'status': 400, 'message': 'There was an error with the request'})
 
 
-        # parses the data into a JSON object that we can return
-        final_json = dict()
-        final_json['status'] = 200
-        final_json['questions'] = []
+        # # parses the data into a JSON object that we can return
+        # final_json = dict()
+        # final_json['status'] = 200
+        # final_json['questions'] = []
 
-        # Gets results from the data
+        # # Gets results from the data
+        # raw_results = data['results']
+
+        # for result in raw_results:
+
+        
+
+        #     # creates the maps of all the questions, and appends to all answers array
+
+        #     all_answers = []
+
+        #     for answer in incorrect_answers:
+        #         answers = {
+        #             'answer': answer,
+        #             'is_correct': False
+        #         }
+        #         all_answers.append(answers)
+
+
+        #     # Does the one for correct answer
+        #     correct_answer_map = {
+        #         'answer': correct_answer,
+        #         'is_correct': True
+        #     }
+
+        #     all_answers.append(correct_answer_map)
+
+        # final_dict = {'question:' : question, 'answers': all_answers}
+        # final_dict = {'score': False}
+
+        # game = Game(0, final_dict)
+
+        # final_json['questions'].append(final_dict)
+
+
+        # # Gets results from the data
         raw_results = data['results']
 
+        all_questions = []
+
+        # Creates all the question arrays
         for result in raw_results:
 
             question = result['question']
             correct_answer = result['correct_answer']
             incorrect_answers = result['incorrect_answers']
-
-            # creates the maps of all the questions, and appends to all answers array
 
             all_answers = []
 
@@ -207,29 +249,36 @@ def post_generate_game(request):
                     'answer': answer,
                     'is_correct': False
                 }
-                all_answers.append(answers)
 
+                # Creates the answer obj
+                answer = Answer(answer, False)
+                
 
-            # Does the one for correct answer
-            correct_answer_map = {
-                'answer': correct_answer,
-                'is_correct': True
-            }
+                all_answers.append(answer.to_dict())
 
-            all_answers.append(correct_answer_map)
+            question = Question(question=question, answers = all_answers)
+            all_questions.append(question.to_dict())
 
-        final_dict = {'question:' : question, 'answers': all_answers}
-        final_dict = {'score': False}
+        # Creates the game object
+        game = Game(0, all_questions)
 
-        game = Game(0, final_dict)
+        return_map = game.to_dict() 
 
-        final_json['questions'].append(final_dict)
+        #return_map = {"foo": 100}
+        #print(return_map)
+        print(type(return_map))
 
+        #return_map = json.dumps(return_map)
 
-        return JsonResponse(game.to_dict)#final_json)
+        print(return_map)
+
+        return JsonResponse(return_map)
 
 
     except Exception as e:
+        print("Failed to return on post_generate_answer(): " )
+        traceback.print_exc()
+        print("returning status 500")
         return JsonResponse({'status': 500, 'message': 'There was an internal error'})
 
 

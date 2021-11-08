@@ -44,12 +44,15 @@ model_game = [
     ]
 
 def server_home(request):
+    # dataObj = Dict()
+
+    return render(request, 'game/gameplay.html')
+    
+    # return render(request, 'game/gameplay.html', dataObj)
 
     # check if there is a cookie
     # if there is a cookie, validate it
     # if not, redirect to login page
-
-    return HttpResponse('Home page')
 
 def post_game_played(request):  
     # create variables from the POST req body

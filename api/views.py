@@ -222,6 +222,17 @@ def post_generate_game(request):
 
                 all_answers.append(answer.to_dict())
 
+            # Adds the correct answer
+            correct_answer = {
+                'answer': correct_answer,
+                'is_correct': True
+            }
+
+            # Creates the correct answer obj and appends it to the all_answers array
+            correct_answer = Answer(correct_answer['answer'], True)
+            all_answers.append(correct_answer.to_dict())
+
+
             question = Question(question=question, answers = all_answers)
             all_questions.append(question.to_dict())
 
@@ -229,6 +240,7 @@ def post_generate_game(request):
         game = Game(0, all_questions)
 
         return_map = game.to_dict() 
+        return_map['status'] = 200
 
 
         return JsonResponse(return_map)

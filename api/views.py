@@ -269,3 +269,20 @@ def post_generate_game(request):
 
 def submit_scores(request):
     return HttpResponse('The path to submit user\'s game scores.')
+
+## PRIVATE HELPER FUNCTIONS
+def _set_cookie(key, value):
+    pass
+
+def _get_cookie(key):
+    pass
+
+def _generate_token():
+    # randomly generate
+    ## get_user + 'whatever you want'
+    pass
+
+def _validate_token(tokenToValidate):
+    # compare teh user_id + 'whatever you want' to the tokenToValidate
+    pass
+

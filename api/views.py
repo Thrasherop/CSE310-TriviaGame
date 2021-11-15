@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.urls import conf
 from api.custom_models.user import User
 
 from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user
@@ -46,7 +47,11 @@ model_game = [
 def server_home(request):
     # dataObj = Dict()
 
-    return render(request, 'game/gameplay.html')
+    data = {
+        "typing": "This is the statement"
+    }
+
+    return render(request, 'home/homescreen.html', data)
     
     # return render(request, 'game/gameplay.html', dataObj)
 
@@ -66,12 +71,21 @@ def post_game_played(request):
     return JsonResponse(dbResponse)
 
 def post_signup(request):
+    # create returnDict, just in case there is an error
+    returnDict = {}
+
     # creating variables from the POST req body
     first_name = request.POST['first_name']
     last_name = request.POST['last_name']
     email = request.POST['email']
     password = request.POST['password']
     confirmPassword = request.POST['confirm_password']
+
+
+    if not first_name or not last_name or not email or not password or not confirmPassword:
+        returnDict['message'] = 'Form not filled out correctly'
+        returnDict['status'] = 400
+        return render(request, 'home/homescreen.html', returnDict)
 
     # make sure the email doesn't already exists
     # get all users

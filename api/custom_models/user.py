@@ -28,7 +28,8 @@ class User(models.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
-            'games': self.games
+            'games': self.games,
+            'password': self.password
         }
 
         return dest

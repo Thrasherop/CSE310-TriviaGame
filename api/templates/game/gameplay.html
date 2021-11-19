@@ -132,6 +132,7 @@
             // TODO: Send the data to the server
             console.log("Submit called");
 
+<<<<<<< HEAD
             // Add the user_token (sourced from cookie) to the final_data object
             //console.log(getCookie("user_token"));
 
@@ -139,6 +140,8 @@
             final_data["user_token"] = user_token;
 
 
+=======
+>>>>>>> 326009f (Some *simple* gameplay)
             // POST this to localhost:8000/api/post-game
             fetch('/api/post-game', {
                 method: 'POST',
@@ -150,6 +153,7 @@
         });
             
 
+<<<<<<< HEAD
         function getCookie(cname) {
             let name = cname + "=";
             let decodedCookie = decodeURIComponent(document.cookie);
@@ -165,6 +169,8 @@
             }
   return "";
 }
+=======
+>>>>>>> 326009f (Some *simple* gameplay)
 
     </script>
 

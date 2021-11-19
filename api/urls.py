@@ -13,6 +13,7 @@ urlpatterns = [
     path('login', views.post_login),
     path('submit_scores', views.submit_scores),
     path('generate_game', views.post_generate_game),
+    path('post-game', views.post_game_played),
 ]
 
 

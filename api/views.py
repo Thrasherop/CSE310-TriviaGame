@@ -14,6 +14,7 @@ from api.custom_models.answer import Answer
 import requests
 import traceback
 import json
+import random
 
 
 # Create your views here / controllers to handle the logic of the req and handle the interact with the db
@@ -57,15 +58,21 @@ def get_homescreen(request):
     return renderResp
 
 def post_game_played(request):  
+
+    # Just check the request and print
+    print("post game played worked")
+    print(request.body)
+
+
     # create variables from the POST req body
-    user_id = request.POST['user_id']
-    game_score = request.POST['score']
-    game_played = request.POST['game']
+    # user_id = request.POST['user_id']
+    # game_score = request.POST['score']
+    # game_played = request.POST['game']
 
     # write this game object to the firebase db
     # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
-    dbResponse = post_game(user_id, game_score, game_played)
-    return JsonResponse(dbResponse)
+    # dbResponse = post_game(user_id, game_score, game_played)
+    return JsonResponse({"message": 'Game added successfully', "status": 200})
 
 def post_signup(request):
     # create returnDict, just in case there is an error
@@ -247,7 +254,10 @@ def post_generate_game(request):
             correct_answer = Answer(correct_answer['answer'], True)
             all_answers.append(correct_answer.to_dict())
 
+            # Scrambles the order of the answers 
+            random.shuffle(all_answers)
 
+            # Creates the question obj
             question = Question(question=question, answers = all_answers)
             all_questions.append(question.to_dict())
 
@@ -258,7 +268,8 @@ def post_generate_game(request):
         return_map['status'] = 200
 
 
-        return JsonResponse(return_map)
+        #return JsonResponse(return_map)
+        return render(request, 'game/gameplay.html', return_map)
 
 
     except Exception as e:

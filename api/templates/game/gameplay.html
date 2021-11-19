@@ -3,15 +3,150 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Trivia Gameplay!</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    
 </head>
 <body>
 
-    <h1 id="headOne">GAME PLAY SCREEN</h1>
+
+    
+    <style>
+        /* The style sheet */
+
+        .correct {
+            background-color: green;
+        }
+
+        .incorrect {
+            background-color: red;
+        }
+
+    </style>
+
+
+    <h1> Answer these questions, then hit the submit button! </h1>
+    <!--Adds the submit button-->
+    <hr>
+    <button id="submit" class="btn btn-success mt-2" type="submit">Submit</button>
+    <hr>
+    <br>
+
     
     <script type="text/javascript">
-        // ADD JS HERE
-        const h = document.getElementById('headOne');
-        h.innerHTML = 'NEW TEXT';
+        
+
+        // Builds a map of the data
+        // let all_data = { 
+        //     score: {{score}},
+        //     questions: {{questions}},
+        //     status: {{status}}
+        // }
+
+        
+
+        //function process_click
+
+        final_data = {
+            score: 0,
+            questions: []
+        }
+
+        console.log("{{questions}}");
+
+
+        // Loops through each question
+        {% for ques in questions %}
+
+
+            // Creates a new h1 and sets the text to ques.question.
+            h1 = document.createElement('h1');
+            h1.innerHTML = '{{ques.question}}'.replace("&quot;", "\"").replace("&#039;", "\'");
+
+
+            // appends it to the body
+            document.body.appendChild(h1);
+
+
+            //Loops through and creates a new p for each answer
+            {% for ans in ques.answers %}
+
+                // Creates a new p and sets the text to ans.answer
+                btn = document.createElement('button');
+                btn.setAttribute('id', '{{ques.question}}-answer');
+                btn.setAttribute('class', '{{ques.question}}-answer');
+                btn.innerHTML = '{{ans.answer}}'.replace("&quot;", "\"").replace("&#039;", "\'");
+
+                btn.addEventListener('click', (e) =>{
+                    /*
+                        This function needs to do the following:
+                            if this is the right answer, 
+                                
+                                change the button color to green
+
+                            if this is the wrong answer,
+                                
+                                change the button color to red
+
+                            regardless
+                                add the chosen answer to the final_data object
+                                set the scored attribute to true
+                                disable all buttons with this id
+                            
+                    */
+
+                    //console.log(e);
+
+                    // Disables the buttons
+                    var all_buttons = document.getElementsByClassName('{{ques.question}}-answer');
+                    for (var i = 0; i < all_buttons.length; i++) {
+                        all_buttons[i].disabled = true;
+                    }
+
+                    // adds the choice to the final_data object
+                    final_data["questions"].push({
+                        question: '{{ques.question}}',
+                        answer: '{{ans.answer}}',
+                        correct: '{{ans.is_correct}}'
+                    });
+
+                    
+
+                    console.log("clicked: {{ans.answer}}");
+
+
+                });
+
+                // appends it to the body
+                document.body.appendChild(btn);
+
+            {% endfor %}
+
+
+        {% endfor %} 
+
+
+        // Adds listener for submit button
+        document.getElementById('submit').addEventListener('click', (e) => {
+            // TODO: Send the data to the server
+            console.log("Submit called");
+
+            // POST this to localhost:8000/api/post-game
+            fetch('/api/post-game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(final_data)
+            })
+        });
+            
+
+
     </script>
+
+
+    
+
 </body>

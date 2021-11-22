@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import conf
 from api.custom_models.user import User
 
-from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user
+from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user, delete_user
 from api.custom_models.game import Game
 from api.custom_models.question import Question
 from api.custom_models.answer import Answer

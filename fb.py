@@ -40,7 +40,7 @@ def initialize_firestore():
 # get all users in db
 def get_users():
     # this returns an array of documents
-    results = users_ref.get()
+    results = users_ref.stream()
     return results
 
 # get user data with user_id as a string passed in
@@ -64,23 +64,26 @@ def post_login_user(email, password):
         returnDict["status"] = 400
         return returnDict
     # search through every user to make sure email exists
+    # get_users() returns a list of dictionaries
     users = get_users()
+    userIsThere = False
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
-    for i in users:
-        if email == users[i]['email']:
-            if password == users[i]['password']:
-                returnDict["message"] = "successful login"
-                returnDict["status"] = 200
-                return returnDict
-    #### if there is not an email, using the returnDict={}, with a status of 400 and message saying the email doens't exist, sign up pls
-            else:
-                returnDict["message"] = "password doesn't match given email"
-                returnDict["status"] = 400
-                return returnDict
-        else:
-            returnDict["message"] = "email isn't found"
-            returnDict["status"] = 400
-            return returnDict
+    for user in users:
+        u = user.to_dict()
+        if email == u['email']:
+            if password == u['password']:
+                userIsThere = True
+                break
+
+    if userIsThere == False:
+        returnDict["message"] = "user isn't found"
+        returnDict["status"] = 400
+        return returnDict
+
+    returnDict["message"] = "successful login"
+    returnDict["status"] = 200
+    return returnDict
+    
 
             
 
@@ -90,7 +93,8 @@ def post_user(first_name, last_name, email, password):
     user = User(first_name=first_name, last_name=last_name,
                 email=email, password=password)
     # convert django model to dictionary
-    d = user.to_dict(0)
+    d = user.to_dict()
+
 
     # set return object
     returnDict = {'message': "", 'status': None}
@@ -227,7 +231,7 @@ def post_game(user_id, score, game):
         # update return dictionary
         returnDict["message"] = "Success"
         returnDict["status"] = 200
-    except:
+    except Exception as e:
         # if fails, set returnDict to failure and return
         returnDict["message"] = str(e)
         returnDict["status"] = 400

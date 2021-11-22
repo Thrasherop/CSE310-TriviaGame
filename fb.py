@@ -112,19 +112,29 @@ def post_user(first_name, last_name, email, password):
 
 # delete user by user_id
 def delete_user(user_id):
+    # set return dict
+    returnDict = {'message': "", 'status': None}
+
     # make sure user_id is there, not None type
-    assert user_id != None
+    if user_id == None:
+        returnDict['message'] = 'User ID is not there'
+        returnDict['status'] = 400
+        return returnDict
+
     # get the user by the get_user(user_id) function above
     user = get_user(user_id)
     # THIS IS WHERE IT CAN GET TRICKY
+    if user == None:
+        returnDict['message'] = 'User object is not found'
+        returnDict['status'] = 400
+        return returnDict
+
 
     # first see if the games list within that user object has games
     #### len(user['games']) > 0
     # if not, jsut delete the user cause that means the user hasn't played any games
-    if len(user['games']) <= 0:
-        del user
 
-    # if there are games, loop through each games
+    #if there are games, loop through each games
     if len(user['games']) > 0:
         for gameId in user['games']:        
             for questionId in gameId['questions']:
@@ -132,33 +142,26 @@ def delete_user(user_id):
                     answers_ref.document(answerId).delete()
                 questions_ref.document(answerId).delete()
             games_ref.document(answerId).delete()
-        #### for gameId in user['games']
-            # then loop through each question in that game
-            #### for questionId in gameId['questions']
-                # then loop through each answer for that question
-                #### for answerId in questionId['answers']
-                    # then delete those answers
-                    #### answers_ref.document(answerId).delete()
+
+    users_ref.document(user_id).delete()
+
+    #### for gameId in user['games']
+    # then loop through each question in that game
+    #### for questionId in gameId['questions']
+    # then loop through each answer for that question
+    #### for answerId in questionId['answers']
+    # then delete those answers
+    #### answers_ref.document(answerId).delete()
     # then delete the question
     #### questions_ref.document(questionId).delete()
     #### then delete the game
 
     # user = get_user(user_id)
 
-    # for gameId in user['games']:
-    #     if gameId != None:
-    #         game_to_delete_dict = games_ref.document(gameId).get().to_dict()
-
-    #         for questionId in gameId['questions']:
-    #             if questionId != None:
-    #                 question_to_delete_dict = questions_ref.document(questionId).delete()
-
-    #                 for answerId in questionId['answers']:
-    #                     answers_ref.document(answerId).delete()
-                    
-    #                 questions_ref.document(questionId).delete()
-
-    #         && SO ON!!
+    returnDict["message"] = "user delete success"
+    returnDict["status"] = 200
+    return returnDict
+    
 
 
 # get all games, with user_id passed in

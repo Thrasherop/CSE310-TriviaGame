@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from api.custom_models.user import User
 
-from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game
+from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, delete_user
 
 
 # Create your views here / controllers to handle the logic of the req and handle the interact with the db
@@ -35,7 +35,10 @@ model_game = [
     ]
 
 def server_home(request):
-    return HttpResponse('Home page')
+    # return HttpResponse('Home page')
+    pass
+
+
 
 def post_game_played(request):  
     # create variables from the POST req body

@@ -67,12 +67,18 @@ def post_login_user(email, password):
     # get_users() returns a list of dictionaries
     users = get_users()
     userIsThere = False
+    user_id = ""
+
+
+
+
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
     for user in users:
         u = user.to_dict()
         if email == u['email']:
             if password == u['password']:
                 userIsThere = True
+                user_id = user.id
                 break
 
     if userIsThere == False:
@@ -82,6 +88,7 @@ def post_login_user(email, password):
 
     returnDict["message"] = "successful login"
     returnDict["status"] = 200
+    returnDict['user_id'] = user_id
     return returnDict
     
 

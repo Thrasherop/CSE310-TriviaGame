@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.urls import conf
 from api.custom_models.user import User
+import random
 
 from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user
 from api.custom_models.game import Game
@@ -130,6 +131,19 @@ def post_login(request):
     # send email and password to post_login_user() from fb.py, make sure to import that function. 
     # You might get an error but it's because your code isn't merged with the latest code
     response = post_login_user(email, password)
+    # user_token_cookie_status = _set_cookie("user_token", response['user_id'])
+    # user_id_cookie_status = _set_cookie("user_id", response['user_id'])
+    # _hash_user_token_cookie_status, response['user_id'])
+    # return JsonResponse({"message":"Sucessfull login", "status": 200})
+    # get user_token_cookie_status and sompare it to the validate
+
+   
+
+
+
+
+
+
     
     # you will then set that to a response variable, which will return a response object, 
     # that will have a response['status'] key, if 200 == success, 400 == error
@@ -271,18 +285,67 @@ def submit_scores(request):
     return HttpResponse('The path to submit user\'s game scores.')
 
 ## PRIVATE HELPER FUNCTIONS
-def _set_cookie(key, value):
-    pass
+def _set_cookie(key, user_id):
+    
+    responseObj ={}
 
-def _get_cookie(key):
-    pass
+    try:
+        token = _generate_token(user_id)
+        key.set_cookie(key, token)
+         
+        responseObj["status"] = 200
+        responseObj["message"] = "Cookie set!"
+        return responseObj
+        
+    except:
 
-def _generate_token():
-    # randomly generate
-    ## get_user + 'whatever you want'
-    pass
+        responseObj["status"] = 400
+        responseObj["message"] = "Cookie failed to set..."
+        return responseObj
 
-def _validate_token(tokenToValidate):
-    # compare teh user_id + 'whatever you want' to the tokenToValidate
-    pass
+def _generate_token(user_id):
+    token = (user_id + "0000")
+    return token
+    
+
+
+def _get_cookie(cookie_key, request):
+    responseObj = {}
+    token = request.COOKIES[cookie_key]
+    
+    if token is None:
+        responseObj["message"] = "cookie does not exist"
+        responseObj["status"] = 400
+        return responseObj
+    
+    user_id = _hash_token(token)
+
+    responseObj["cookie_value"] = token
+    return responseObj
+
+def _hash_token(token):
+
+    responseObj = {}
+
+    
+    if token is None:
+        responseObj["message"] = "must pass in a token"
+        responseObj["status"] = 400
+        return responseObj
+
+    token_length = len(token)
+    user_id = token.rstrip(token[-4])
+
+    #print(user_id)
+
+    responseObj["hashed_user_id"] = user_id
+    return responseObj
+    
+    
+ 
+
+
+
+
+    
 

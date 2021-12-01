@@ -306,8 +306,6 @@ def _get_cookie(cookie_key, request):
     
     # if token is there, validate it
     user_id = _reverse_hash_token(token)
-    print(token)
-    print(user_id)
 
     # check to see if the token matches
     if user_id['status'] != 200:
@@ -317,7 +315,7 @@ def _get_cookie(cookie_key, request):
 
     # return success Obj
     responseObj["status"] = 200
-    responseObj["cookie_value"] = token
+    responseObj["user_id"] = user_id
     return responseObj
 
 def _reverse_hash_token(token):

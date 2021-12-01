@@ -51,6 +51,8 @@ def server_home(request):
 
 def get_homescreen(request):
     # this renders after the person logs in
+    user = _get_cookie('user_token', request)
+
     renderResp = render(request, 'game/homescreen.html')
     return renderResp
 
@@ -315,7 +317,7 @@ def _get_cookie(cookie_key, request):
 
     # return success Obj
     responseObj["status"] = 200
-    responseObj["user_id"] = user_id
+    responseObj["user_id"] = user_id['hashed_user_id']
     return responseObj
 
 def _reverse_hash_token(token):

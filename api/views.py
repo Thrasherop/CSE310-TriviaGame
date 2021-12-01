@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import conf
 from api.custom_models.user import User
@@ -46,19 +46,13 @@ model_game = [
     ]
 
 def server_home(request):
-    # dataObj = Dict()
+    # this renders the login/signup btns
+    return render(request, 'home/homescreen.html')
 
-    data = {
-        "typing": "This is the statement"
-    }
-
-    return render(request, 'home/homescreen.html', data)
-    
-    # return render(request, 'game/gameplay.html', dataObj)
-
-    # check if there is a cookie
-    # if there is a cookie, validate it
-    # if not, redirect to login page
+def get_homescreen(request):
+    # this renders after the person logs in
+    renderResp = render(request, 'game/homescreen.html')
+    return renderResp
 
 def post_game_played(request):  
     # create variables from the POST req body
@@ -129,7 +123,7 @@ def post_login(request):
         return
 
     # create a render object to render the req, html, and whatever data we want to pass into the html file
-    renderResp = render(request, 'home/homescreen.html')
+    renderResp = redirect('/api/homescreen', request=request)
 
     # use the renderResp as the HttpResponse to set the cookie
     cookieResp = _set_cookie("user_token", firebaseResponse['user_id'], renderResp)
@@ -303,7 +297,7 @@ def _get_cookie(cookie_key, request):
     responseObj = {}
     # get the token by the key being passed in
     token = request.COOKIES[cookie_key]
-    
+
     # check to see if token is there or no
     if token is None:
         responseObj["message"] = "cookie does not exist"
@@ -311,7 +305,9 @@ def _get_cookie(cookie_key, request):
         return responseObj
     
     # if token is there, validate it
-    user_id = _hash_token(token)
+    user_id = _reverse_hash_token(token)
+    print(token)
+    print(user_id)
 
     # check to see if the token matches
     if user_id['status'] != 200:
@@ -324,7 +320,7 @@ def _get_cookie(cookie_key, request):
     responseObj["cookie_value"] = token
     return responseObj
 
-def _hash_token(token):
+def _reverse_hash_token(token):
     # set response obj
     responseObj = {}
 
@@ -333,12 +329,11 @@ def _hash_token(token):
         responseObj["message"] = "must pass in a token"
         responseObj["status"] = 400
         return responseObj
-
     # strip off the last 4 zeros off of the token
     # should equal the userId
     user_id = token.rstrip(token[-4])
     responseObj["hashed_user_id"] = user_id
-    responseObj["status"] == 200
+    responseObj["status"] = 200
     return responseObj
     
     

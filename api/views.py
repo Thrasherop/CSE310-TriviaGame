@@ -63,6 +63,12 @@ def post_game_played(request):
     print("post game played worked")
     print(request.body)
 
+    user_token = _get_cookie("user_token", request)
+
+    
+
+
+
 
     # create variables from the POST req body
     # user_id = request.POST['user_id']

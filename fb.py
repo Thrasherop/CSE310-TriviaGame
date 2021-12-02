@@ -193,6 +193,42 @@ def get_game(game_id):
 ### with --> question: string, scored: boolean, answers: Array
 ####### with --> answer: string, is_correct: boolean
 def post_game(user_id, score, game):
+
+
+    """
+    This is the apparent structure of the game parameter):
+
+
+    game = [
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        etc...
+    ]
+
+
+    
+    """
+
+
+
     # create empty list of answerIds and questionIds
     answerIdList = list()
     questionIdList = list()

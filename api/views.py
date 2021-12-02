@@ -80,6 +80,9 @@ def post_game_played(request):
     # Calculates the score by comparing the user's answers to the correct answers
     score = 0
     unanswered = 0
+
+    scored_answers = set() # This set keeps track of the answers that the user got correct. This is used later
+
     #print(request.body)
 
 
@@ -123,6 +126,9 @@ def post_game_played(request):
             if user_answer == correct_answer:
                 # print("user_answer == correct_answer")
                 score += 10
+                
+                # Adds the question to the set of answered questions
+                scored_answers.add(item['question'])
 
         # else:
         #     unanswered += 1
@@ -132,23 +138,100 @@ def post_game_played(request):
 
 
     
-    print(f"score: {score}, unanswered: {unanswered}")
-
-
-    #dbResponse = post_game(user_token, score, original_questions)
+    # print(f"score: {score}, unanswered: {unanswered}")
 
 
 
-    # create variables from the POST req body
-    # user_id = request.POST['user_id']
-    # game_score = request.POST['score']
-    # game_played = request.POST['game']
+    """
+    This is the apparent structure of the game (as needed for post_game)):
 
-    # write this game object to the firebase db
-    # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
-    # dbResponse = post_game(user_id, game_score, game_played)
-    #return JsonResponse(json.dumps(request.body))
-    return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
+
+    game = [
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        etc...
+    ]
+
+
+    
+    """
+
+    try:
+
+
+        # Creates dictionary for the game
+        game_data = []
+
+        # print("\n\n\n\n\n", original_questions)
+        # print("\n\n\n\n\n", user_questions)
+
+        for question, answer_list in original_questions.items():
+
+            # Creates a dictionary for the question and adds the question string
+            this_question = {}
+            this_question['question'] = question
+
+            
+
+            # Checks if the user got this question correct
+            if question in scored_answers:
+                this_question['scored'] = True
+            else:
+                this_question['scored'] = False
+
+            # Creates a list of answers for the question
+            this_question['answers'] = answer_list
+
+            # Adds the question to the game
+            game_data.append(this_question)
+
+        # print(game_data)
+
+
+
+        # print("\n\n\n\n\n\n\n")
+
+
+        dbResponse = post_game(user_token, score, game_data)
+
+        # If it failed, return the error
+        if dbResponse['status'] != 200:
+            return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
+
+
+
+        # create variables from the POST req body
+        # user_id = request.POST['user_id']
+        # game_score = request.POST['score']
+        # game_played = request.POST['game']
+
+        # write this game object to the firebase db
+        # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
+        # dbResponse = post_game(user_id, game_score, game_played)
+        #return JsonResponse(json.dumps(request.body))
+        return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
+
+    except Exception as e:
+        print("Failed to add a game: ", e)
+        return JsonResponse({"message": 'Error adding game', "status": 500})
 
 def post_signup(request):
     # create returnDict, just in case there is an error

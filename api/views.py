@@ -60,13 +60,82 @@ def get_homescreen(request):
 def post_game_played(request):  
 
     # Just check the request and print
-    print("post game played worked")
-    print(request.body)
+    #print("post game played worked")
+    #print(request.body)
 
-    user_token = _get_cookie("user_token", request)
+    user_cookie = _get_cookie("user_token", request)
+
+    if user_cookie['status'] != 200:
+        return JsonResponse({"status": 500, "message": "server error. Please try again"})
+
+
+    user_token = user_cookie['user_id']
+
+    print("Got data from: ", user_token)
+
+    # Parse the request body into a dict
+    req_body = json.loads(request.body)
 
     
+    # Calculates the score by comparing the user's answers to the correct answers
+    score = 0
+    unanswered = 0
+    #print(request.body)
 
+
+    original_questions = req_body['original_questions']
+    user_questions = req_body['questions']
+
+    #print("\n\n\n\n\n\n\noriginal_questions: ", original_questions)
+    #print("\n\n\n\n\n\nuser_questions: ", user_questions)
+
+    for item in user_questions:
+        #print("item: ", item['question'])
+
+        if item['question'] in original_questions:
+            #print(f"{item} is in user_questions")
+            #print(original_questions[item['question']])
+
+            # Gets all answers for the question
+            original_answers = original_questions[item['question']]
+
+            #print("original_answers: ", original_answers)
+
+            correct_answer = None
+
+            # loops through the answers and finds the correct answer
+            for answer in original_answers:
+                #print("answer: ", answer)
+                if answer['is_correct'] == 'True':
+                    #print("answer['is_correct'] == True")
+                    correct_answer = answer['answer']
+                    #print("correct_answer: ", correct_answer)
+                    break
+
+            #print("correct_answer: ", correct_answer)
+
+            # Gets the user's answer
+            user_answer = item['answer']
+
+            # print("user_answer: ", user_answer)
+
+            # Checks if the user's answer is correct
+            if user_answer == correct_answer:
+                # print("user_answer == correct_answer")
+                score += 10
+
+        # else:
+        #     unanswered += 1
+
+    # Checks how many questions the user didn't answer
+    unanswered = len(original_questions) - len(user_questions)
+
+
+    
+    print(f"score: {score}, unanswered: {unanswered}")
+
+
+    dbResponse = post_game(user_token, score, original_questions)
 
 
 
@@ -78,7 +147,8 @@ def post_game_played(request):
     # write this game object to the firebase db
     # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
     # dbResponse = post_game(user_id, game_score, game_played)
-    return JsonResponse({"message": 'Game added successfully', "status": 200})
+    #return JsonResponse(json.dumps(request.body))
+    return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
 
 def post_signup(request):
     # create returnDict, just in case there is an error
@@ -184,6 +254,7 @@ def post_generate_game(request):
 
     """
 
+
     try:
 
         # Initilizes the api query string
@@ -275,7 +346,9 @@ def post_generate_game(request):
 
 
         #return JsonResponse(return_map)
-        return render(request, 'game/gameplay.html', return_map)
+        renderResp = render(request, 'game/gameplay.html', return_map)
+        return renderResp
+        # return render(request, 'game/gameplay.html', return_map)
 
 
     except Exception as e:

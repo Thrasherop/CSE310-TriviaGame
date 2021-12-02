@@ -38,6 +38,32 @@
         
 
         // Builds a map of the data
+
+        let original_data = {}
+
+
+        {% for ques in questions %}
+            
+            all_answers = [];
+
+            {% for ans in ques.answers %}
+
+                this_answer = {};
+                this_answer['answer'] = '{{ans.answer}}';
+                this_answer['is_correct'] = '{{ans.is_correct}}';
+
+                all_answers.push(this_answer);
+
+            {% endfor %}
+
+            original_data["{{ques.question}}"] = all_answers;
+
+
+        {% endfor %}
+
+
+        console.log(original_data);
+
         // let all_data = { 
         //     score: {{score}},
         //     questions: {{questions}},
@@ -53,7 +79,7 @@
             questions: []
         }
 
-        console.log("{{questions}}");
+        // console.log("{{questions}}");
 
 
         // Loops through each question
@@ -132,7 +158,6 @@
             // TODO: Send the data to the server
             console.log("Submit called");
 
-<<<<<<< HEAD
             // Add the user_token (sourced from cookie) to the final_data object
             //console.log(getCookie("user_token"));
 
@@ -140,11 +165,9 @@
             final_data["user_token"] = user_token;
 
             // Adds the original questions to the final_data object
-            final_data["original_questions"] = {{questions}};
+            final_data["original_questions"] = original_data;
 
 
-=======
->>>>>>> 326009f (Some *simple* gameplay)
             // POST this to localhost:8000/api/post-game
             fetch('/api/post-game', {
                 method: 'POST',
@@ -156,7 +179,6 @@
         });
             
 
-<<<<<<< HEAD
         function getCookie(cname) {
             let name = cname + "=";
             let decodedCookie = decodeURIComponent(document.cookie);
@@ -170,10 +192,8 @@
                 return c.substring(name.length, c.length);
                 }
             }
-  return "";
-}
-=======
->>>>>>> 326009f (Some *simple* gameplay)
+            return "";
+            }
 
     </script>
 

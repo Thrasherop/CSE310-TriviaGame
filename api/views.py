@@ -135,7 +135,7 @@ def post_game_played(request):
     print(f"score: {score}, unanswered: {unanswered}")
 
 
-    dbResponse = post_game(user_token, score, original_questions)
+    #dbResponse = post_game(user_token, score, original_questions)
 
 
 

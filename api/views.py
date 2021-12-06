@@ -286,9 +286,15 @@ def post_login(request):
     # check if email and password check out in the database
     firebaseResponse = post_login_user(email, password)
 
+
     # check if we got a success from firebase
     if firebaseResponse['status'] != 200:
-        return
+        # renderResp = redirect('/api', message="User doesn't exist")
+        returnDict = {}
+        returnDict['message'] = 'ERROR! User doesn\'t exist! Please sign up.'
+        returnDict['status'] = 400
+        returnDict['from_route'] = '/login'
+        return render(request, 'home/homescreen.html', returnDict)
 
     # create a render object to render the req, html, and whatever data we want to pass into the html file
     renderResp = redirect('/api/homescreen', request=request)

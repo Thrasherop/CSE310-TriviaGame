@@ -21,10 +21,18 @@
         <div class="text-center" style="padding-top: 20px; padding-left: 20px;">
             <button id="signupBtn" type="button" class="btn btn-secondary btn-lg">Signup To Play</button>
             <button id="loginBtn" type="button" class="btn btn-primary btn-lg">Login To Play</button>
+            {{status}}
         </div>
-        {% if status == 400 %}
-        <div>
-            {{message}}
+        
+        {% if from_account_creation and from_route '/signup' %}
+            <div class="text-center mt-3 container">
+                <h3 class="alert {% if status == 400 %} alert-danger {% else %} alert-primary {% endif %}"> {{message}} </h3>
+            </div>
+        {% endif %}
+
+        {% if status == 400 and from_route == '/login' %}
+        <div class="text-center mt-3 container">
+            <h3 class="alert alert-danger">{{ message }}</h3>
         </div>
         {% endif %}
 

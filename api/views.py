@@ -14,6 +14,7 @@ from api.custom_models.answer import Answer
 import requests
 import traceback
 import json
+import random
 
 
 # Create your views here / controllers to handle the logic of the req and handle the interact with the db
@@ -57,15 +58,180 @@ def get_homescreen(request):
     return renderResp
 
 def post_game_played(request):  
-    # create variables from the POST req body
-    user_id = request.POST['user_id']
-    game_score = request.POST['score']
-    game_played = request.POST['game']
 
-    # write this game object to the firebase db
-    # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
-    dbResponse = post_game(user_id, game_score, game_played)
-    return JsonResponse(dbResponse)
+    # Just check the request and print
+    #print("post game played worked")
+    #print(request.body)
+
+    user_cookie = _get_cookie("user_token", request)
+
+    if user_cookie['status'] != 200:
+        return JsonResponse({"status": 500, "message": "server error. Please try again"})
+
+
+    user_token = user_cookie['user_id']
+
+    print("Got data from: ", user_token)
+
+    # Parse the request body into a dict
+    req_body = json.loads(request.body)
+
+    
+    # Calculates the score by comparing the user's answers to the correct answers
+    score = 0
+    unanswered = 0
+
+    scored_answers = set() # This set keeps track of the answers that the user got correct. This is used later
+
+    #print(request.body)
+
+
+    original_questions = req_body['original_questions']
+    user_questions = req_body['questions']
+
+    #print("\n\n\n\n\n\n\noriginal_questions: ", original_questions)
+    #print("\n\n\n\n\n\nuser_questions: ", user_questions)
+
+    for item in user_questions:
+        #print("item: ", item['question'])
+
+        if item['question'] in original_questions:
+            #print(f"{item} is in user_questions")
+            #print(original_questions[item['question']])
+
+            # Gets all answers for the question
+            original_answers = original_questions[item['question']]
+
+            #print("original_answers: ", original_answers)
+
+            correct_answer = None
+
+            # loops through the answers and finds the correct answer
+            for answer in original_answers:
+                #print("answer: ", answer)
+                if answer['is_correct'] == 'True':
+                    #print("answer['is_correct'] == True")
+                    correct_answer = answer['answer']
+                    #print("correct_answer: ", correct_answer)
+                    break
+
+            #print("correct_answer: ", correct_answer)
+
+            # Gets the user's answer
+            user_answer = item['answer']
+
+            # print("user_answer: ", user_answer)
+
+            # Checks if the user's answer is correct
+            if user_answer == correct_answer:
+                # print("user_answer == correct_answer")
+                score += 10
+                
+                # Adds the question to the set of answered questions
+                scored_answers.add(item['question'])
+
+        # else:
+        #     unanswered += 1
+
+    # Checks how many questions the user didn't answer
+    unanswered = len(original_questions) - len(user_questions)
+
+
+    
+    # print(f"score: {score}, unanswered: {unanswered}")
+
+
+
+    """
+    This is the apparent structure of the game (as needed for post_game)):
+
+
+    game = [
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        {
+            'question': '',
+            'scored': False,
+            'answers': [
+                {
+                    'answer': '',
+                    'is_correct': False
+                }
+            ]
+        },
+        etc...
+    ]
+
+
+    
+    """
+
+    try:
+
+
+        # Creates dictionary for the game
+        game_data = []
+
+        # print("\n\n\n\n\n", original_questions)
+        # print("\n\n\n\n\n", user_questions)
+
+        for question, answer_list in original_questions.items():
+
+            # Creates a dictionary for the question and adds the question string
+            this_question = {}
+            this_question['question'] = question
+
+            
+
+            # Checks if the user got this question correct
+            if question in scored_answers:
+                this_question['scored'] = True
+            else:
+                this_question['scored'] = False
+
+            # Creates a list of answers for the question
+            this_question['answers'] = answer_list
+
+            # Adds the question to the game
+            game_data.append(this_question)
+
+        # print(game_data)
+
+
+
+        # print("\n\n\n\n\n\n\n")
+
+
+        dbResponse = post_game(user_token, score, game_data)
+
+        # If it failed, return the error
+        if dbResponse['status'] != 200:
+            return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
+
+
+
+        # create variables from the POST req body
+        # user_id = request.POST['user_id']
+        # game_score = request.POST['score']
+        # game_played = request.POST['game']
+
+        # write this game object to the firebase db
+        # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
+        # dbResponse = post_game(user_id, game_score, game_played)
+        #return JsonResponse(json.dumps(request.body))
+        return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
+
+    except Exception as e:
+        print("Failed to add a game: ", e)
+        return JsonResponse({"message": 'Error adding game', "status": 500})
 
 def post_signup(request):
     # create returnDict, just in case there is an error
@@ -171,6 +337,7 @@ def post_generate_game(request):
 
     """
 
+
     try:
 
         # Initilizes the api query string
@@ -247,7 +414,10 @@ def post_generate_game(request):
             correct_answer = Answer(correct_answer['answer'], True)
             all_answers.append(correct_answer.to_dict())
 
+            # Scrambles the order of the answers 
+            random.shuffle(all_answers)
 
+            # Creates the question obj
             question = Question(question=question, answers = all_answers)
             all_questions.append(question.to_dict())
 
@@ -258,7 +428,10 @@ def post_generate_game(request):
         return_map['status'] = 200
 
 
-        return JsonResponse(return_map)
+        #return JsonResponse(return_map)
+        renderResp = render(request, 'game/gameplay.html', return_map)
+        return renderResp
+        # return render(request, 'game/gameplay.html', return_map)
 
 
     except Exception as e:

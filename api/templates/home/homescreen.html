@@ -17,11 +17,7 @@
 <body>
 
 
-    {% if from_account_creation %}
-
-    <p align="center"> {{message}} </p>
-
-    {% endif %}
+    
 
     <div>
         <!-- button #1 -->
@@ -29,11 +25,7 @@
             <button id="signupBtn" type="button" class="btn btn-secondary btn-lg">Signup To Play</button>
             <button id="loginBtn" type="button" class="btn btn-primary btn-lg">Login To Play</button>
         </div>
-        {% if status == 400 %}
-        <div>
-            {{message}}
-        </div>
-        {% endif %}
+
 
         <div class="container">
             <form id="signupForm" class="form hide" action="/api/signup" method="post">

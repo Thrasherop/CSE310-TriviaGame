@@ -44,9 +44,9 @@ def get_users():
     return results
 
 # get user data with user_id as a string passed in
-def get_user(user_id):
+def get_user(userObj):
     # this returns an object
-    userToReturn = users_ref.document(user_id).get()
+    userToReturn = users_ref.document(userObj['user_id']).get()
     # convert the object to a python dict and return it
     return userToReturn.to_dict()
 

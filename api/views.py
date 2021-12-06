@@ -57,6 +57,17 @@ def get_homescreen(request):
     renderResp = render(request, 'game/homescreen.html')
     return renderResp
 
+def user(request):
+    userId = _get_cookie('user_token', request)
+    userData = get_user(userId)
+
+    returnDict = {}
+    returnDict['message'] = 'User info fetched!'
+    returnDict['status'] = 200
+    returnDict['user_data'] = userData
+    return render(request, 'auth/profile.html', returnDict)
+    
+
 def post_game_played(request):  
 
     # Just check the request and print

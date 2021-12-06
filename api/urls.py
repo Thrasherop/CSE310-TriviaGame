@@ -14,7 +14,7 @@ urlpatterns = [
     path('homescreen', views.get_homescreen),
     path('submit_scores', views.submit_scores),
     path('generate_game', views.post_generate_game),
-    path('profile', views.get_user),
+    path('profile', views.user),
     path('post-game', views.post_game_played),
 ]
 

@@ -258,18 +258,27 @@ def post_signup(request):
         # convert user to dict
         u = user.to_dict()
         if email == u['email']:
-            return JsonResponse({"message": 'Email already exists.', "status": 400})
+            #return JsonResponse({"message": 'Email already exists.', "status": 400})
+            
+            return render(request, "home/homescreen.html", {"message": 'Email already exists', "status": 400, "from_account_creation": True})
 
     # make sure passwords match
     if password != confirmPassword:
-        return JsonResponse({'message': 'Passwords do not match.', "status": 400})
+        #return JsonResponse({'message': 'Passwords do not match.', "status": 400})
+        
+        return render(request, "home/homescreen.html", {"message": 'Passwords do not match', "status": 400, "from_account_creation": True})
 
     # write this user object to the firebase db
     # get a response from the fb.py post_user function
     response = post_user(first_name, last_name, email, password)
 
     # based on that response, we return a status of 200 for success, or 400 for fail | all in JSON
-    return JsonResponse(response)
+    # return JsonResponse(response)
+
+    if response['status'] == 200:
+        return render(request, 'home/homescreen.html', {'message': 'User created successfully.', 'status': 200, "from_account_creation": True})
+    else:
+        return render(request, "home/homescreen.html", {"message": 'Error adding user', "status": 400, "from_account_creation": True})
 
 
 def post_login(request):

@@ -23,6 +23,28 @@
             background-color: red;
         }
 
+        body {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        button {
+            margin: 1rem 10px;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            border-style: none;
+            color: white; 
+            box-shadow: none;
+        }
+
+
     </style>
 
 
@@ -87,12 +109,12 @@
 
 
             // Creates a new h1 and sets the text to ques.question.
-            h1 = document.createElement('h1');
-            h1.innerHTML = '{{ques.question}}'.replace("&quot;", "\"").replace("&#039;", "\'");
+            h3 = document.createElement('h3');
+            h3.innerHTML = '{{ques.question}}'.replace("&quot;", "\"").replace("&#039;", "\'");
 
 
             // appends it to the body
-            document.body.appendChild(h1);
+            document.body.appendChild(h3);
 
 
             //Loops through and creates a new p for each answer

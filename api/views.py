@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import conf
+import html 
 from api.custom_models.user import User
 import random
 
@@ -282,20 +283,21 @@ def post_generate_game(request):
         # Creates all the question arrays
         for result in raw_results:
 
-            question = result['question']
-            correct_answer = result['correct_answer']
+            question = html.unescape(result['question'])
+            correct_answer = html.unescape(result['correct_answer'])
+            print(result['correct_answer'])
             incorrect_answers = result['incorrect_answers']
 
             all_answers = []
 
             for answer in incorrect_answers:
                 answers = {
-                    'answer': answer,
+                    'answer': html.unescape(answer),
                     'is_correct': False
                 }
 
                 # Creates the answer obj
-                answer = Answer(answer, False)
+                answer = Answer(html.unescape(answer), False)
                 
 
                 all_answers.append(answer.to_dict())
@@ -320,10 +322,11 @@ def post_generate_game(request):
         # Creates the game object
         game = Game(0, all_questions)
 
-        return_map = game.to_dict() 
+        return_map = game.to_dict()
         return_map['status'] = 200
 
-
+        #return_map.decode("utf-8").replace("&quot;", "\"")
+        print(return_map)
         #return JsonResponse(return_map)
         renderResp = render(request, 'game/gameplay.html', return_map)
         return renderResp

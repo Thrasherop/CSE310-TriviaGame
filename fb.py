@@ -50,17 +50,23 @@ def get_user(userObj):
     # convert the object to a python dict and return it
     return userToReturn.to_dict()
 
+def _get_user_by_id(userId):
+    # this returns an object
+    userToReturn = users_ref.document(userId).get()
+    # convert the object to a python dict and return it
+    return userToReturn.to_dict()
+
 # signin a user to the db
 def post_login_user(email, password):
     # set return object
     returnDict = {'message': "", 'status': None}
     # again, authenticate to make sure there is an email and password
     if not email:
-        returnDict["message"] = "email cannot be blank"
+        returnDict["message"] = "Email cannot be blank."
         returnDict["status"] = 400
         return returnDict
     if not password:
-        returnDict["message"] = "password cannot be blank"
+        returnDict["message"] = "Password cannot be blank."
         returnDict["status"] = 400
         return returnDict
     # search through every user to make sure email exists
@@ -69,24 +75,32 @@ def post_login_user(email, password):
     userIsThere = False
     user_id = ""
 
-
-
-
     #### if there is an email match, using the returnDict={} send back a status of 200, with any message 'Success' or something
+    # check is email exists
     for user in users:
         u = user.to_dict()
+        if email != u['email']:
+            userIsThere = False
+            returnDict["message"] = "Email isn't found. Please sign up."
+            returnDict["status"] = 400
         if email == u['email']:
-            if password == u['password']:
-                userIsThere = True
-                user_id = user.id
-                break
+            userIsThere = True
+            user_id = user.id
+            break
 
     if userIsThere == False:
-        returnDict["message"] = "user isn't found"
+        returnDict["message"] = "Email isn't found. Please sign up."
         returnDict["status"] = 400
         return returnDict
 
-    returnDict["message"] = "successful login"
+    # check if password matches
+    user = _get_user_by_id(user_id)
+    if user['password'] != password:
+        returnDict["message"] = "Password doesn't match. Please try again."
+        returnDict["status"] = 400
+        return returnDict
+
+    returnDict["message"] = "Successful login"
     returnDict["status"] = 200
     returnDict['user_id'] = user_id
     return returnDict
@@ -101,7 +115,6 @@ def post_user(first_name, last_name, email, password):
                 email=email, password=password)
     # convert django model to dictionary
     d = user.to_dict()
-
 
     # set return object
     returnDict = {'message': "", 'status': None}
@@ -133,7 +146,7 @@ def delete_user(user_id):
         return returnDict
 
     # get the user by the get_user(user_id) function above
-    user = get_user(user_id)
+    user = _get_user_by_id(user_id)
     # THIS IS WHERE IT CAN GET TRICKY
     if user == None:
         returnDict['message'] = 'User object is not found'
@@ -142,7 +155,6 @@ def delete_user(user_id):
 
 
     # first see if the games list within that user object has games
-    #### len(user['games']) > 0
     # if not, jsut delete the user cause that means the user hasn't played any games
 
     #if there are games, loop through each games
@@ -155,19 +167,6 @@ def delete_user(user_id):
             games_ref.document(answerId).delete()
 
     users_ref.document(user_id).delete()
-
-    #### for gameId in user['games']
-    # then loop through each question in that game
-    #### for questionId in gameId['questions']
-    # then loop through each answer for that question
-    #### for answerId in questionId['answers']
-    # then delete those answers
-    #### answers_ref.document(answerId).delete()
-    # then delete the question
-    #### questions_ref.document(questionId).delete()
-    #### then delete the game
-
-    # user = get_user(user_id)
 
     returnDict["message"] = "user delete success"
     returnDict["status"] = 200
@@ -193,42 +192,6 @@ def get_game(game_id):
 ### with --> question: string, scored: boolean, answers: Array
 ####### with --> answer: string, is_correct: boolean
 def post_game(user_id, score, game):
-
-
-    """
-    This is the apparent structure of the game parameter):
-
-
-    game = [
-        {
-            'question': '',
-            'scored': False,
-            'answers': [
-                {
-                    'answer': '',
-                    'is_correct': False
-                }
-            ]
-        },
-        {
-            'question': '',
-            'scored': False,
-            'answers': [
-                {
-                    'answer': '',
-                    'is_correct': False
-                }
-            ]
-        },
-        etc...
-    ]
-
-
-    
-    """
-
-
-
     # create empty list of answerIds and questionIds
     answerIdList = list()
     questionIdList = list()
@@ -249,12 +212,11 @@ def post_game(user_id, score, game):
         # after creating 4 answer objects, create a question object for each question
         # Create Question Object
         question = Question(question=game_feature['question'], scored=game_feature['scored'], answers=answerIdList)
-        # for ans in question.answers:
-        #     print(ans)
         # write the question to the database, return back the id of the question
         questionObjId = _write_question(question.to_dict())
         # append the id to list
         questionIdList.append(questionObjId)
+
 
     # create game obj
     game = Game(score=score, questions=questionIdList)
@@ -266,7 +228,7 @@ def post_game(user_id, score, game):
     returnDict = {}
     try:
         # get the user by it's user_id
-        fetchedUser = get_user(user_id)
+        fetchedUser = _get_user_by_id(user_id)
         # append the new gameId to the games field in the user
         fetchedUser['games'].append(gameId)
         # update that user by it's id
@@ -285,7 +247,7 @@ def post_game(user_id, score, game):
 
 def delete_game(user_id, game_id):
     # get the user so we can delete the game from the games array within the user
-    fetchedUser = get_user(user_id)
+    fetchedUser = _get_user_by_id(user_id)
 
     # set return object
     returnDict = {'message': "", 'status': None}

@@ -70,53 +70,32 @@ def user(request):
 
 def post_game_played(request):  
 
-    # Just check the request and print
-    #print("post game played worked")
-    #print(request.body)
-
-    user_cookie = _get_cookie("user_token", request)
+    user_cookie = _get_cookie('user_token', request)
 
     if user_cookie['status'] != 200:
-        return JsonResponse({"status": 500, "message": "server error. Please try again"})
-
+        return JsonResponse({"status": 400, "message": "Cookies doesn't exist."})
 
     user_token = user_cookie['user_id']
-
-    print("Got data from: ", user_token)
 
     # Parse the request body into a dict
     req_body = json.loads(request.body)
 
-    
     # Calculates the score by comparing the user's answers to the correct answers
     score = 0
     unanswered = 0
 
-    scored_answers = set() # This set keeps track of the answers that the user got correct. This is used later
-
-    #print(request.body)
-
+    # This set keeps track of the answers that the user got correct. This is used later
+    scored_answers = set()
 
     original_questions = req_body['original_questions']
     user_questions = req_body['questions']
 
-    #print("\n\n\n\n\n\n\noriginal_questions: ", original_questions)
-    #print("\n\n\n\n\n\nuser_questions: ", user_questions)
-
     for item in user_questions:
-        #print("item: ", item['question'])
 
         if item['question'] in original_questions:
-            #print(f"{item} is in user_questions")
-            #print(original_questions[item['question']])
-
             # Gets all answers for the question
             original_answers = original_questions[item['question']]
-
-            #print("original_answers: ", original_answers)
-
             correct_answer = None
-
             # loops through the answers and finds the correct answer
             for answer in original_answers:
                 #print("answer: ", answer)
@@ -126,12 +105,8 @@ def post_game_played(request):
                     #print("correct_answer: ", correct_answer)
                     break
 
-            #print("correct_answer: ", correct_answer)
-
             # Gets the user's answer
             user_answer = item['answer']
-
-            # print("user_answer: ", user_answer)
 
             # Checks if the user's answer is correct
             if user_answer == correct_answer:
@@ -141,66 +116,17 @@ def post_game_played(request):
                 # Adds the question to the set of answered questions
                 scored_answers.add(item['question'])
 
-        # else:
-        #     unanswered += 1
-
     # Checks how many questions the user didn't answer
     unanswered = len(original_questions) - len(user_questions)
-
-
-    
-    # print(f"score: {score}, unanswered: {unanswered}")
-
-
-
-    """
-    This is the apparent structure of the game (as needed for post_game)):
-
-
-    game = [
-        {
-            'question': '',
-            'scored': False,
-            'answers': [
-                {
-                    'answer': '',
-                    'is_correct': False
-                }
-            ]
-        },
-        {
-            'question': '',
-            'scored': False,
-            'answers': [
-                {
-                    'answer': '',
-                    'is_correct': False
-                }
-            ]
-        },
-        etc...
-    ]
-
-
-    
-    """
-
     try:
-
-
         # Creates dictionary for the game
         game_data = []
-
-        # print("\n\n\n\n\n", original_questions)
-        # print("\n\n\n\n\n", user_questions)
 
         for question, answer_list in original_questions.items():
 
             # Creates a dictionary for the question and adds the question string
             this_question = {}
             this_question['question'] = question
-
-            
 
             # Checks if the user got this question correct
             if question in scored_answers:
@@ -213,31 +139,13 @@ def post_game_played(request):
 
             # Adds the question to the game
             game_data.append(this_question)
-
-        # print(game_data)
-
-
-
-        # print("\n\n\n\n\n\n\n")
-
-
         dbResponse = post_game(user_token, score, game_data)
+
 
         # If it failed, return the error
         if dbResponse['status'] != 200:
             return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
 
-
-
-        # create variables from the POST req body
-        # user_id = request.POST['user_id']
-        # game_score = request.POST['score']
-        # game_played = request.POST['game']
-
-        # write this game object to the firebase db
-        # must pass in the user_id as STRING, game score as INT/Number, and the game object (reference model_game)
-        # dbResponse = post_game(user_id, game_score, game_played)
-        #return JsonResponse(json.dumps(request.body))
         return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
 
     except Exception as e:
@@ -269,14 +177,10 @@ def post_signup(request):
         # convert user to dict
         u = user.to_dict()
         if email == u['email']:
-            #return JsonResponse({"message": 'Email already exists.', "status": 400})
-            
             return render(request, "home/homescreen.html", {"message": 'Email already exists', "status": 400, "from_account_creation": True, "from_route": "/signup"})
 
     # make sure passwords match
     if password != confirmPassword:
-        #return JsonResponse({'message': 'Passwords do not match.', "status": 400})
-        
         return render(request, "home/homescreen.html", {"message": 'Passwords do not match', "status": 400, "from_account_creation": True, "from_route": "/signup"})
 
     # write this user object to the firebase db
@@ -299,20 +203,19 @@ def post_login(request):
 
     # see if the request.POST['email'] & ['password'] aren't empty
     if not email:
-        return JsonResponse({"message": 'email field must have data', "status": 400})
+        return JsonResponse({"message": 'Email field is required', "status": 400})
     if not password:
-        return JsonResponse({"message": 'password field must have data', "status": 400})
+        return JsonResponse({"message": 'Password field is required', "status": 400})
 
     # check if email and password check out in the database
     firebaseResponse = post_login_user(email, password)
-
 
     # check if we got a success from firebase
     if firebaseResponse['status'] != 200:
         # renderResp = redirect('/api', message="User doesn't exist")
         returnDict = {}
-        returnDict['message'] = 'ERROR! User doesn\'t exist! Please sign up.'
-        returnDict['status'] = 400
+        returnDict['message'] = firebaseResponse['message']
+        returnDict['status'] = firebaseResponse['status']
         returnDict['from_route'] = '/login'
         return render(request, 'home/homescreen.html', returnDict)
 
@@ -330,39 +233,6 @@ def post_login(request):
     return renderResp
 
 def post_generate_game(request):
-
-
-    """
-
-        Generates a game from the trivia API
-        IT returns this game data as a JSON object
-
-
-        There are optional post parameters:
-            difficulty: easy, medium, hard (easy default)
-            amount: how many questions to return (10 default)
-            category: a specific category to return questions from (any default)
-            type: multiple, true or false (multiple default)
-            
-
-        The request to trivia looks like this:
-        # https://opentdb.com/api.php?amount=10&category=9&difficulty=medium&type=multiple&encode=url3986
-
-        return:
-            A JsonResponse object with the following keys:
-                status: 200 for success, 400 for error
-                questions: an array of questions
-                    [
-                        {question: question string,
-                        answers: [
-                            {answer: answer string, is_correct: boolean}
-                        ]}.
-
-                    ]
-        
-
-    """
-
 
     try:
 

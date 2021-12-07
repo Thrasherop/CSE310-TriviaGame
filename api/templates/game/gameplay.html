@@ -155,14 +155,9 @@
 
         // Adds listener for submit button
         document.getElementById('submit').addEventListener('click', (e) => {
-            // TODO: Send the data to the server
-            console.log("Submit called");
 
-            // Add the user_token (sourced from cookie) to the final_data object
-            //console.log(getCookie("user_token"));
-
-            let user_token = getCookie("user_token");
-            final_data["user_token"] = user_token;
+            // let user_token = getCookie("user_token");
+           // final_data["user_token"] = user_token;
 
             // Adds the original questions to the final_data object
             final_data["original_questions"] = original_data;

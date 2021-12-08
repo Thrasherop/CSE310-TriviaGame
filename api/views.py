@@ -63,9 +63,22 @@ def user(request):
     userData = get_user(userId)
 
     returnDict = {}
+    score_list = []
+    if (len(userData['games']) > 0):
+        for game in userData['games']:
+            score_list.append(game['score'])
+            
+        returnDict['num_games'] = len(score_list)
+        returnDict['high_score'] = score_list[-1]
+
+    else:
+        returnDict['num_games'] = 0
+        returnDict['high_score'] = 0
+
     returnDict['message'] = 'User info fetched!'
     returnDict['status'] = 200
     returnDict['user_data'] = userData
+    print(returnDict)
     return render(request, 'auth/profile.html', returnDict)
     
 

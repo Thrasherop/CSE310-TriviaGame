@@ -101,6 +101,10 @@
             questions: []
         }
 
+        // adds original data to final data
+        final_data["original_questions"] = original_data;
+
+
         // console.log("{{questions}}");
 
 
@@ -178,21 +182,27 @@
         // Adds listener for submit button
         document.getElementById('submit').addEventListener('click', (e) => {
 
-            // let user_token = getCookie("user_token");
-           // final_data["user_token"] = user_token;
-
-            // Adds the original questions to the final_data object
-            final_data["original_questions"] = original_data;
+            // Validates that all questions have been answered
+            if (final_data["questions"].length != Object.keys(final_data["original_questions"]).length) {
+                alert("You haven't answered all the questions!");
+                return;
+            }
 
 
             // POST this to localhost:8000/api/post-game
-            fetch('/api/post-game', {
+            data = fetch('/api/post-game', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(final_data)
+                body: JSON.stringify(final_data),
+                redirect: 'follow'
             })
+
+
+            // Redirects to /api/profile 
+            location.replace("/api/profile");
+
         });
             
 

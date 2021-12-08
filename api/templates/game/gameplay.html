@@ -35,13 +35,17 @@
 
         button {
             margin: 1rem 10px;
-            padding: 5px;
+            padding: 8px;
             border-radius: 5px;
             background-color: #0d6efd;
             border-color: #0d6efd;
             border-style: none;
             color: white; 
             box-shadow: none;
+        }
+
+        button: {
+            background-color: red;
         }
 
 
@@ -124,10 +128,11 @@
             //Loops through and creates a new p for each answer
             {% for ans in ques.answers %}
 
+                
                 // Creates a new p and sets the text to ans.answer
                 btn = document.createElement('button');
-                btn.setAttribute('id', '{{ques.question}}-answer');
-                btn.setAttribute('class', '{{ques.question}}-answer');
+                btn.setAttribute('id', '{{forloop.counter}}');
+                btn.setAttribute('class', '{{ques.question}}-answer btn-primary');
                 btn.innerHTML = '{{ans.answer}}'.replace("&quot;", "\"").replace("&#039;", "\'");
 
                 btn.addEventListener('click', (e) =>{
@@ -153,6 +158,13 @@
                     // Disables the buttons
                     var all_buttons = document.getElementsByClassName('{{ques.question}}-answer');
                     for (var i = 0; i < all_buttons.length; i++) {
+                        if (all_buttons[i].classList.contains('btn-primary')) {
+                            e.target.classList.add('btn-secondary');
+                            e.target.classList.remove('btn-primary');
+                        } else {
+                            e.target.classList.add('btn-primary');
+                            e.target.classList.remove('btn-secondary');
+                        }
                         all_buttons[i].disabled = true;
                     }
 
@@ -166,6 +178,10 @@
                     
 
                     console.log("clicked: {{ans.answer}}");
+                    
+
+                    //change the color of the button you press
+                    document.getElementById("{{ques.question}}-answer").style.backgroundColor = 'lightgrey';
 
 
                 });
@@ -220,7 +236,9 @@
                 }
             }
             return "";
-            }
+        }
+
+
 
     </script>
 

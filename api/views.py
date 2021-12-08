@@ -140,14 +140,16 @@ def post_game_played(request):
 
             # Adds the question to the game
             game_data.append(this_question)
-        dbResponse = post_game(user_token, score)
+            
+        # dbResponse = post_game(user_token, score)
 
+        dbResponse = post_game(user_token, score, game_data)
 
         # If it failed, return the error
         if dbResponse['status'] != 200:
-            return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
+           return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
 
-        return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered})
+        return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered, "go_to_url": '/api/profile'})
 
     except Exception as e:
         print("Failed to add a game: ", e)
@@ -195,7 +197,6 @@ def post_signup(request):
         return render(request, 'home/homescreen.html', {'message': 'User created successfully.', 'status': 200, "from_account_creation": True, "from_route": "/signup"})
     else:
         return render(request, "home/homescreen.html", {"message": 'Error adding user', "status": 400, "from_account_creation": True, "from_route": "/signup"})
-
 
 def post_login(request):
     # create variables for user and password from the POST request body
@@ -285,7 +286,7 @@ def post_generate_game(request):
 
             question = html.unescape(result['question'])
             correct_answer = html.unescape(result['correct_answer'])
-            print(result['correct_answer'])
+            # print(result['correct_answer'])
             incorrect_answers = result['incorrect_answers']
 
             all_answers = []
@@ -408,11 +409,3 @@ def _reverse_hash_token(token):
     responseObj["status"] = 200
     return responseObj
     
-    
- 
-
-
-
-
-    
-

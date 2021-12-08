@@ -143,7 +143,7 @@ def post_game_played(request):
             
         # dbResponse = post_game(user_token, score)
 
-        dbResponse = post_game(user_token, score, game_data)
+        dbResponse = post_game(user_token, score)
 
         # If it failed, return the error
         if dbResponse['status'] != 200:

@@ -191,35 +191,10 @@ def get_game(game_id):
 # game is an Array
 ### with --> question: string, scored: boolean, answers: Array
 ####### with --> answer: string, is_correct: boolean
-def post_game(user_id, score, game):
-    # create empty list of answerIds and questionIds
-    answerIdList = list()
-    questionIdList = list()
-
-    # for each dictionary in the game array
-    for game_feature in game:
-        # make sure the answerIdList is empty each time it loops through
-        answerIdList = []
-
-        # create answer object for each answer, 4 answers per question
-        for i, answerList in enumerate(game_feature['answers']):
-            ansObj = Answer(answer=answerList['answer'], is_correct=answerList['is_correct'])
-            # write the answer to the database, return back the id of the answer
-            answerId = _write_answer(ansObj.to_dict())
-             # append the id to list
-            answerIdList.append(answerId)
-
-        # after creating 4 answer objects, create a question object for each question
-        # Create Question Object
-        question = Question(question=game_feature['question'], scored=game_feature['scored'], answers=answerIdList)
-        # write the question to the database, return back the id of the question
-        questionObjId = _write_question(question.to_dict())
-        # append the id to list
-        questionIdList.append(questionObjId)
-
+def post_game(user_id, score):
 
     # create game obj
-    game = Game(score=score, questions=questionIdList)
+    game = Game(score=score)
     # write the game to the database, return back the id of the game
     gameId = _write_game(game.to_dict())
 
@@ -244,6 +219,59 @@ def post_game(user_id, score, game):
         # return the dictionary to let the user know if failed or succeeded
         return returnDict
 
+## OLD WAY OF SAVINGS A GAME
+# def post_game(user_id, score, game):
+#     # create empty list of answerIds and questionIds
+#     answerIdList = list()
+#     questionIdList = list()
+
+#     # for each dictionary in the game array
+#     for game_feature in game:
+#         # make sure the answerIdList is empty each time it loops through
+#         answerIdList = []
+
+#         # create answer object for each answer, 4 answers per question
+#         for i, answerList in enumerate(game_feature['answers']):
+#             ansObj = Answer(answer=answerList['answer'], is_correct=answerList['is_correct'])
+#             # write the answer to the database, return back the id of the answer
+#             answerId = _write_answer(ansObj.to_dict())
+#              # append the id to list
+#             answerIdList.append(answerId)
+
+#         # after creating 4 answer objects, create a question object for each question
+#         # Create Question Object
+#         question = Question(question=game_feature['question'], scored=game_feature['scored'], answers=answerIdList)
+#         # write the question to the database, return back the id of the question
+#         questionObjId = _write_question(question.to_dict())
+#         # append the id to list
+#         questionIdList.append(questionObjId)
+
+
+#     # create game obj
+#     game = Game(score=score, questions=questionIdList)
+#     # write the game to the database, return back the id of the game
+#     gameId = _write_game(game.to_dict())
+
+#     # now we need to append the gameId to the games array stored in the user object
+#     # create empty dictionary for return purposes
+#     returnDict = {}
+#     try:
+#         # get the user by it's user_id
+#         fetchedUser = _get_user_by_id(user_id)
+#         # append the new gameId to the games field in the user
+#         fetchedUser['games'].append(gameId)
+#         # update that user by it's id
+#         users_ref.document(user_id).update(fetchedUser)
+#         # update return dictionary
+#         returnDict["message"] = "Success"
+#         returnDict["status"] = 200
+#     except Exception as e:
+#         # if fails, set returnDict to failure and return
+#         returnDict["message"] = str(e)
+#         returnDict["status"] = 400
+#     finally:
+#         # return the dictionary to let the user know if failed or succeeded
+#         return returnDict
 
 def delete_game(user_id, game_id):
     # get the user so we can delete the game from the games array within the user

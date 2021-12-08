@@ -140,7 +140,7 @@ def post_game_played(request):
 
             # Adds the question to the game
             game_data.append(this_question)
-        dbResponse = post_game(user_token, score, game_data)
+        dbResponse = post_game(user_token, score)
 
 
         # If it failed, return the error

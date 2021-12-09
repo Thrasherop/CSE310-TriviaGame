@@ -1,32 +1,26 @@
-# CSE 310 Team Project
+# Overview
 
-- Fall 2021
-- Team Members
-  - Nate Hollingshaus
-    -916s
-  - Josh Betzsold
-    - 5092647068
-  - Yebassa, Biya
-  - Kopaunik, Josh
-    -ultraprim@gmail.com
-  - Matthew Rapp
+We simply made a trivia game web application. This application fetches questions from an API, lets users sign up and create accounts, play the game, and view a profile page. We made this to learn django and become more familiar with web application devlopment.
 
-# What To Do
+# Development Environment
+We used VScode to develop this software
+We used python and django to develop this software, with a little bit of HTML, CSS, annd Javascript for the simple front end.
 
-- Pull from master
-- Activate venv
-  - Mac: source venv/bin/active
-  - PC: Not sure
-- Install any dependencies if needed (ask group)
-- Create new branch
-- Work in branch
-- Push branch to github
-- Create pull request
-- Invite team members to check Pull Request
-- Once team gives the OK, merge branch
+# Collaborators
 
-#### Resources
+Matthew Rapp
+Josh Betzsold
+Nate Hollingshaus
+Josh Kopaunik
+Biya Yebassa
 
-[Clone this Repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+# Useful Websites
 
-[Github Branches Documentation](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
+* [Google Firestore Documentation](https://firebase.google.com/docs/firestore/quickstart)
+* [Django Tutorial](https://www.tutorialspoint.com/django/index.htm)
+
+# Future Work
+
+* Add more cyber security and validation and encoding
+* Add more to front end templates
+* Make more advanced and secure hashing of cookies

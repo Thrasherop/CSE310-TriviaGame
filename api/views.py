@@ -5,7 +5,7 @@ import html
 from api.custom_models.user import User
 import random
 
-from fb import get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user, delete_user
+from fb import _get_user_by_id, get_users, initialize_firestore, post_user, get_user, get_game, post_game, delete_game, post_login_user, delete_user
 from api.custom_models.game import Game
 from api.custom_models.question import Question
 from api.custom_models.answer import Answer
@@ -49,23 +49,35 @@ model_game = [
 
 def server_home(request):
     # this renders the login/signup btns
-    return render(request, 'home/homescreen.html')
+    user = _get_cookie('user_token', request)
+
+    if user['status'] != 200:
+        return render(request, 'home/homescreen.html')
+    else:
+        return redirect('/api/homescreen', request=request)
 
 def get_homescreen(request):
     # this renders after the person logs in
     user = _get_cookie('user_token', request)
+    
+    if user['status'] != 200:
+        return redirect('/api', request=request)
 
-    renderResp = render(request, 'game/homescreen.html')
-    return renderResp
+    return render(request, 'game/homescreen.html')
 
 def user(request):
-    userId = _get_cookie('user_token', request)
-    userData = get_user(userId)
+    user = _get_cookie('user_token', request)
+
+    if user['status'] != 200:
+        return redirect('/api', request=request)
+
+    userData = _get_user_by_id(user['user_id'])
 
     returnDict = {}
     score_list = []
     if (len(userData['games']) > 0):
-        for game in userData['games']:
+        for gameId in userData['games']:
+            game = get_game(gameId)
             score_list.append(game['score'])
             
         returnDict['num_games'] = len(score_list)
@@ -78,7 +90,7 @@ def user(request):
     returnDict['message'] = 'User info fetched!'
     returnDict['status'] = 200
     returnDict['user_data'] = userData
-    print(returnDict)
+
     return render(request, 'auth/profile.html', returnDict)
     
 
@@ -87,7 +99,7 @@ def post_game_played(request):
     user_cookie = _get_cookie('user_token', request)
 
     if user_cookie['status'] != 200:
-        return JsonResponse({"status": 400, "message": "Cookies doesn't exist."})
+        return redirect('/api', request=request)
 
     user_token = user_cookie['user_id']
 
@@ -112,11 +124,8 @@ def post_game_played(request):
             correct_answer = None
             # loops through the answers and finds the correct answer
             for answer in original_answers:
-                #print("answer: ", answer)
                 if answer['is_correct'] == 'True':
-                    #print("answer['is_correct'] == True")
                     correct_answer = answer['answer']
-                    #print("correct_answer: ", correct_answer)
                     break
 
             # Gets the user's answer
@@ -124,7 +133,6 @@ def post_game_played(request):
 
             # Checks if the user's answer is correct
             if user_answer == correct_answer:
-                # print("user_answer == correct_answer")
                 score += 10
                 
                 # Adds the question to the set of answered questions
@@ -162,7 +170,8 @@ def post_game_played(request):
         if dbResponse['status'] != 200:
            return JsonResponse({"status": 500, "message": "A server exception occured while saving your game. Please try again."})
 
-        return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered, "go_to_url": '/api/profile'})
+        # return JsonResponse({"message": 'Game added successfully', "status": 200, "score": score, "unanswered": unanswered, "go_to_url": '/api/profile'})
+        return redirect('/api/profile', request=request)
 
     except Exception as e:
         print("Failed to add a game: ", e)
@@ -248,6 +257,10 @@ def post_login(request):
     return renderResp
 
 def post_generate_game(request):
+    user = _get_cookie('user_token', request)
+
+    if user['status'] != 200:
+        return redirect('/api', request=request)
 
     try:
 
@@ -299,7 +312,6 @@ def post_generate_game(request):
 
             question = html.unescape(result['question'])
             correct_answer = html.unescape(result['correct_answer'])
-            # print(result['correct_answer'])
             incorrect_answers = result['incorrect_answers']
 
             all_answers = []
@@ -339,12 +351,8 @@ def post_generate_game(request):
         return_map = game.to_dict()
         return_map['status'] = 200
 
-        #return_map.decode("utf-8").replace("&quot;", "\"")
-        print(return_map)
-        #return JsonResponse(return_map)
         renderResp = render(request, 'game/gameplay.html', return_map)
         return renderResp
-        # return render(request, 'game/gameplay.html', return_map)
 
 
     except Exception as e:
@@ -353,9 +361,6 @@ def post_generate_game(request):
         print("returning status 500")
         return JsonResponse({'status': 500, 'message': 'There was an internal error'})
 
-
-def submit_scores(request):
-    return HttpResponse('The path to submit user\'s game scores.')
 
 ## PRIVATE HELPER FUNCTIONS
 def _set_cookie(key, user_id, renderResp):
@@ -384,10 +389,9 @@ def _get_cookie(cookie_key, request):
     # set response object
     responseObj = {}
     # get the token by the key being passed in
-    token = request.COOKIES[cookie_key]
-
-    # check to see if token is there or no
-    if token is None:
+    try:
+        token = request.COOKIES[cookie_key]
+    except:
         responseObj["message"] = "cookie does not exist"
         responseObj["status"] = 400
         return responseObj

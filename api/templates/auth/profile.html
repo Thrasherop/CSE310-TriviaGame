@@ -38,29 +38,35 @@
         text-align: center;
     }
     li{
-        margin-top: 15px;
+        padding: 6px 0;
         text-align: center;
     }
 
     #data {
         align-items: center;
-        
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
  
  
 </style>
  
  
-<div id = "content">
-    <div id = "top">
+<div id="content">
+    <div id="top">
         <h1> <span>{{user_data.first_name}} {{user_data.last_name}}'s</span> Profile</h1>
     </div>
  
-    <ul id = "data">
-        <h3> User Id: <span>{{user_data.email}}</span> </h3>
+    <ul id="data">
+        <h3> Email: <span>{{user_data.email}}</span> </h3>
         <li> High Score:  <span>{{high_score}}</span></li>
         <li> Number of Games: <span>{{num_games}}</span> </li>
     </ul>
+    <div class="text-center my-3">
+        <a href="homescreen" type="button" class="btn btn-danger btn-lg">Back To Home</a>
+        <a href="generate_game" type="button" class="btn btn-success btn-lg">Play Game</a>
+    </div>
+    <br />
 </div>
 <div class="container text-center m-auto">
     <iframe src="https://giphy.com/embed/KSKvdT1YGCpUIonvSq" width="480" height="400" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/theoffice-the-office-tv-frame-toby-KSKvdT1YGCpUIonvSq">via GIPHY</a></p>

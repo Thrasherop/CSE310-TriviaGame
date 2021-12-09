@@ -34,7 +34,6 @@
         }
 
         button {
-            margin: 1rem 10px;
             padding: 8px;
             border-radius: 5px;
             background-color: #0d6efd;
@@ -42,10 +41,6 @@
             border-style: none;
             color: white; 
             box-shadow: none;
-        }
-
-        button: {
-            background-color: red;
         }
 
 
@@ -87,17 +82,6 @@
 
         {% endfor %}
 
-
-        console.log(original_data);
-
-        // let all_data = { 
-        //     score: {{score}},
-        //     questions: {{questions}},
-        //     status: {{status}}
-        // }
-
-        
-
         //function process_click
 
         final_data = {
@@ -108,31 +92,28 @@
         // adds original data to final data
         final_data["original_questions"] = original_data;
 
-
-        // console.log("{{questions}}");
-
-
         // Loops through each question
         {% for ques in questions %}
 
 
             // Creates a new h1 and sets the text to ques.question.
             h3 = document.createElement('h3');
+            h3.setAttribute('class', 'mt-4 py-2')
             h3.innerHTML = '{{ques.question}}'.replace("&quot;", "\"").replace("&#039;", "\'");
-
 
             // appends it to the body
             document.body.appendChild(h3);
 
 
+
             //Loops through and creates a new p for each answer
             {% for ans in ques.answers %}
 
-                
                 // Creates a new p and sets the text to ans.answer
                 btn = document.createElement('button');
                 btn.setAttribute('id', '{{forloop.counter}}');
-                btn.setAttribute('class', '{{ques.question}}-answer btn-primary');
+                // btn.className += ' {{ques.question}}-answer btn-primary';
+                btn.setAttribute('class', '{{ques.question}}-answer mx-2 btn-primary');
                 btn.innerHTML = '{{ans.answer}}'.replace("&quot;", "\"").replace("&#039;", "\'");
 
                 btn.addEventListener('click', (e) =>{
@@ -153,8 +134,6 @@
                             
                     */
 
-                    //console.log(e);
-
                     // Disables the buttons
                     var all_buttons = document.getElementsByClassName('{{ques.question}}-answer');
                     for (var i = 0; i < all_buttons.length; i++) {
@@ -174,15 +153,6 @@
                         answer: '{{ans.answer}}',
                         correct: '{{ans.is_correct}}'
                     });
-
-                    
-
-                    console.log("clicked: {{ans.answer}}");
-                    
-
-                    //change the color of the button you press
-                    document.getElementById("{{ques.question}}-answer").style.backgroundColor = 'lightgrey';
-
 
                 });
 
@@ -213,31 +183,10 @@
                 },
                 body: JSON.stringify(final_data),
                 redirect: 'follow'
-            })
-
-
-            // Redirects to /api/profile 
-            location.replace("/api/profile");
+            }).then(res => res.ok ? location.replace("/api/profile") : new Error('Game didn\'t save... :('))
 
         });
             
-
-        function getCookie(cname) {
-            let name = cname + "=";
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-            for(let i = 0; i <ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
 
 
     </script>
